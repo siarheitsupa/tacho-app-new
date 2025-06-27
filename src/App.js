@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 // ИСПРАВЛЕНИЕ: Возвращаемся к импорту из CDN, чтобы решить проблему в текущей среде разработки
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 // --- НАСТРОЙКА SUPABASE ---
 const supabaseUrl = 'https://likbrpczndvtxajkoxam.supabase.co';
