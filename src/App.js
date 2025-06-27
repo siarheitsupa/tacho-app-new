@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 // ИСПРАВЛЕНИЕ: Возвращаемся к импорту из CDN, чтобы решить проблему в текущей среде разработки
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+import { createClient } from '@supabase/supabase-js';
 
 // --- НАСТРОЙКА SUPABASE ---
 const supabaseUrl = 'https://likbrpczndvtxajkoxam.supabase.co';
@@ -348,8 +348,8 @@ export default function App() {
     const [activeMenu, setActiveMenu] = useState('Главная');
     const [dateRange, setDateRange] = useState({ from: null, to: null });
 
-    // Функция загрузки данных с учетом фильтра по дате
     const fetchData = useCallback(async () => {
+        if (!supabase) return; // Не выполнять, если supabase не инициализирован
         setLoading(true);
         console.log(`Fetching data for range: ${dateRange.from} to ${dateRange.to}`);
         
@@ -372,29 +372,27 @@ export default function App() {
         setLoading(false);
     }, [dateRange]);
 
-    // Загрузка данных при первой загрузке и при изменении диапазона дат
     useEffect(() => {
-        fetchData();
+        if (supabase) {
+            const channel = supabase.channel('schema-db-changes')
+                .on(
+                    'postgres_changes',
+                    { event: '*', schema: 'public' },
+                    (payload) => {
+                        console.log('Change received!', payload);
+                        fetchData();
+                    }
+                )
+                .subscribe();
+
+            fetchData(); // Initial fetch
+
+            return () => {
+                supabase.removeChannel(channel);
+            };
+        }
     }, [fetchData]);
 
-    // Подписка на изменения в реальном времени
-    useEffect(() => {
-        const channel = supabase.channel('schema-db-changes');
-        channel
-            .on(
-                'postgres_changes',
-                { event: '*', schema: 'public' },
-                (payload) => {
-                    console.log('Change received!', payload);
-                    fetchData();
-                }
-            )
-            .subscribe();
-        
-        return () => {
-            supabase.removeChannel(channel);
-        };
-    }, [fetchData]);
 
     // --- ОБРАБОТЧИКИ ДЕЙСТВИЙ ---
     const handleDeleteTrip = async (trip) => {
@@ -431,6 +429,10 @@ export default function App() {
 
     const closeModal = () => setModal({ isOpen: false, type: null, data: null });
     const openModal = (type, data = null) => setModal({ isOpen: true, type, data });
+    
+    if (!supabase) {
+        return <div className="bg-[#0f172a] min-h-screen flex items-center justify-center text-white text-xl">Настройка подключения к базе данных...</div>
+    }
     
     const totalDrivingTime = calculateTotalTime(trips);
     const totalDistance = calculateTotalDistance(trips);
