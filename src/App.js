@@ -146,7 +146,7 @@ const Header = ({activePage, dateRange, onDateFilterClick}) => {
     const formatDate = (date) => new Date(date).toLocaleDateString('ru-RU');
     
     return (
-        <header className="flex justify-between items-center p-6 bg-[#0f172a] border-b border-slate-800 print:hidden">
+        <header className="flex justify-between items-center p-6 bg-slate-900 border-b border-slate-800 print:hidden">
             <h1 className="text-2xl font-bold text-white">{activePage === "Главная" ? "Обзор деятельности" : activePage}</h1>
             <div className="flex items-center space-x-6">
                 <button onClick={onDateFilterClick} className="flex items-center space-x-2 text-white bg-[#1e293b] px-4 py-2 rounded-lg hover:bg-slate-700 transition-colors">
