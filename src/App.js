@@ -1,15 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
-// ИСПРАВЛЕНИЕ: Возвращаемся к стандартному импорту для Vercel
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+// ИСПРАВЛЕНИЕ: Возвращаемся к импорту из CDN, чтобы решить проблему в текущей среде разработки
+import { createClient } from '@supabase/supabase-js';
 
 // --- НАСТРОЙКА SUPABASE ---
-// Ключи будут браться из переменных окружения Vercel
-const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
-const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
+const supabaseUrl = 'https://likbrpczndvtxajkoxam.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxpa2JycGN6bmR2dHhhamtveGFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA5Mzk2ODMsImV4cCI6MjA2NjUxNTY4M30.xqvLGgU1Csnb57cOLmr3H6uqCUSjRrabcq6-LzzF_3A';
 // -------------------------
 
-// Создаем клиент Supabase, только если ключи доступны
-const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 // --- ИКОНКИ ---
 const HomeIcon = (props) => (
