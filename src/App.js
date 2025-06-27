@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-// Импортируем Supabase из CDN
+// ИСПРАВЛЕНИЕ: Возвращаемся к импорту из CDN, чтобы решить проблему в текущей среде разработки
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 // --- НАСТРОЙКА SUPABASE ---
@@ -370,7 +370,7 @@ export default function App() {
         else setFuelings(fuelingsResult.data || []);
         
         setLoading(false);
-    }, [dateRange]); // Зависимость от dateRange
+    }, [dateRange]);
 
     // Загрузка данных при первой загрузке и при изменении диапазона дат
     useEffect(() => {
@@ -394,7 +394,7 @@ export default function App() {
         return () => {
             supabase.removeChannel(channel);
         };
-    }, [fetchData]); // Добавляем fetchData в зависимости
+    }, [fetchData]);
 
     // --- ОБРАБОТЧИКИ ДЕЙСТВИЙ ---
     const handleDeleteTrip = async (trip) => {
@@ -671,7 +671,6 @@ const DateRangePickerModal = ({ initialRange, onApply, onCancel }) => {
     const [range, setRange] = useState(initialRange);
 
     const handleApply = () => {
-        // Устанавливаем null, если даты не выбраны, чтобы снять фильтр
         if(!range.from && !range.to) {
             onApply({from: null, to: null});
         } else if (range.from && range.to) {
