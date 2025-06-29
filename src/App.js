@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 // ИСПРАВЛЕНИЕ: Стандартный импорт для Vercel после установки пакета
 import { createClient } from '@supabase/supabase-js';
 
@@ -396,7 +396,11 @@ export default function App() {
                 )
                 .subscribe();
 
-            fetchData(); // Initial fetch
+            // Определяем асинхронную функцию внутри useEffect и вызываем ее
+            const loadInitialData = async () => {
+                await fetchData();
+            };
+            loadInitialData();
 
             return () => {
                 supabase.removeChannel(channel);
@@ -612,9 +616,23 @@ const EditTripForm = ({ onSave, onCancel, trip = {} }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        const { hours, minutes, ...rest } = formData;
-        const timeString = `${hours || 0} ч ${minutes || 0} мин`;
-        onSave({ ...trip, ...rest, time: timeString });
+        const { hours, minutes, start_km, end_km, ...rest } = formData;
+
+        // Убедитесь, что числовые поля являются числами или null
+        const parsedStartKm = start_km === '' ? null : Number(start_km);
+        const parsedEndKm = end_km === '' ? null : Number(end_km);
+        const parsedHours = hours === '' ? null : Number(hours);
+        const parsedMinutes = minutes === '' ? null : Number(minutes);
+
+        const timeString = `${parsedHours || 0} ч ${parsedMinutes || 0} мин`;
+
+        onSave({
+            ...trip,
+            ...rest,
+            start_km: parsedStartKm,
+            end_km: parsedEndKm,
+            time: timeString
+        });
     };
 
     return (
