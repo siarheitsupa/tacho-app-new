@@ -51,6 +51,9 @@ const PrinterIcon = (props) => (
 const MapPinIcon = (props) => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
 );
+const MenuIcon = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><line x1="4" x2="20" y1="12" y2="12" /><line x1="4" x2="20" y1="6" y2="6" /><line x1="4" x2="20" y1="18" y2="18" /></svg>
+);
 
 
 // --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
@@ -104,13 +107,13 @@ const calculateTotalFuel = (fuelings) => {
 
 // --- КОМПОНЕНТЫ ИНТЕРФЕЙСА ---
 const Modal = ({ children, onClose }) => (
-    <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center" onClick={onClose}>
-        <div className="bg-[#1e293b] rounded-2xl shadow-lg p-8 w-full max-w-lg m-4" onClick={e => e.stopPropagation()}>{children}</div>
+    <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center p-4" onClick={onClose}>
+        <div className="bg-[#1e293b] rounded-2xl shadow-lg p-8 w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>{children}</div>
     </div>
 );
 
-const Sidebar = ({ activeItem, setActiveItem }) => (
-    <div className="bg-[#1e293b] text-white w-64 p-6 flex flex-col fixed h-full print:hidden">
+const Sidebar = ({ activeItem, setActiveItem, isOpen, onClose }) => (
+    <div className={`fixed inset-y-0 left-0 bg-[#1e293b] text-white w-64 p-6 flex flex-col z-50 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-transform duration-300 ease-in-out print:hidden`}>
         <div className="flex items-center space-x-2 mb-12">
             <TruckIcon className="h-8 w-8 text-blue-400" />
             <h1 className="text-2xl font-bold">TachoApp</h1>
@@ -130,7 +133,7 @@ const Sidebar = ({ activeItem, setActiveItem }) => (
                     <li 
                         key={item.name} 
                         className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer transition-all duration-200 mb-2 ${activeItem === item.name ? 'bg-blue-500 text-white' : 'hover:bg-slate-700'}`}
-                        onClick={() => setActiveItem(item.name)}
+                        onClick={() => { setActiveItem(item.name); onClose(); }}
                     >
                         <item.icon className="h-5 w-5" />
                         <span>{item.name}</span>
@@ -142,25 +145,30 @@ const Sidebar = ({ activeItem, setActiveItem }) => (
 );
 
 
-const Header = ({activePage, dateRange, onDateFilterClick}) => {
+const Header = ({activePage, dateRange, onDateFilterClick, onMenuToggle}) => {
     const formatDate = (date) => new Date(date).toLocaleDateString('ru-RU');
     
     return (
-        <header className="flex justify-between items-center p-6 bg-slate-900 border-b border-slate-800 print:hidden">
-            <h1 className="text-2xl font-bold text-white">{activePage === "Главная" ? "Обзор деятельности" : activePage}</h1>
-            <div className="flex items-center space-x-6">
-                <button onClick={onDateFilterClick} className="flex items-center space-x-2 text-white bg-[#1e293b] px-4 py-2 rounded-lg hover:bg-slate-700 transition-colors">
-                    <CalendarIcon className="h-5 w-5 text-slate-400"/>
-                    <span>
+        <header className="flex justify-between items-center p-4 lg:p-6 bg-slate-900 border-b border-slate-800 print:hidden">
+            <div className="flex items-center">
+                <button onClick={onMenuToggle} className="lg:hidden mr-4 text-white hover:text-blue-400">
+                    <MenuIcon className="h-6 w-6" />
+                </button>
+                <h1 className="text-xl lg:text-2xl font-bold text-white">{activePage === "Главная" ? "Обзор деятельности" : activePage}</h1>
+            </div>
+            <div className="flex items-center space-x-3 lg:space-x-6">
+                <button onClick={onDateFilterClick} className="flex items-center space-x-2 text-white bg-[#1e293b] px-3 py-1 lg:px-4 lg:py-2 rounded-lg hover:bg-slate-700 transition-colors text-sm lg:text-base">
+                    <CalendarIcon className="h-4 w-4 lg:h-5 lg:w-5 text-slate-400"/>
+                    <span className="hidden sm:inline">
                         {dateRange.from && dateRange.to ? `${formatDate(dateRange.from)} - ${formatDate(dateRange.to)}` : "Весь период"}
                     </span>
-                    <ChevronDownIcon className="h-5 w-5 text-slate-400"/>
+                    <ChevronDownIcon className="h-4 w-4 lg:h-5 lg:w-5 text-slate-400"/>
                 </button>
-                <div className="flex items-center space-x-3">
-                    <div className="bg-blue-500 h-10 w-10 rounded-full flex items-center justify-center font-bold text-white">ИП</div>
-                    <div>
-                        <p className="font-semibold text-white">Иван Петров</p>
-                        <p className="text-sm text-green-400">● В пути</p>
+                <div className="flex items-center space-x-2 lg:space-x-3">
+                    <div className="bg-blue-500 h-8 w-8 lg:h-10 lg:w-10 rounded-full flex items-center justify-center font-bold text-white text-sm lg:text-base">ИП</div>
+                    <div className="hidden sm:block">
+                        <p className="font-semibold text-white text-sm lg:text-base">Иван Петров</p>
+                        <p className="text-xs lg:text-sm text-green-400">● В пути</p>
                     </div>
                 </div>
             </div>
@@ -349,6 +357,7 @@ export default function App() {
     const [modal, setModal] = useState({ isOpen: false, type: null, data: null });
     const [activeMenu, setActiveMenu] = useState('Главная');
     const [dateRange, setDateRange] = useState({ from: null, to: null });
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const fetchData = useCallback(async () => {
         if (!supabase) return; // Не выполнять, если supabase не инициализирован
@@ -475,14 +484,26 @@ export default function App() {
 
     return (
         <div className="bg-[#0f172a] min-h-screen font-sans text-white">
-            <Sidebar activeItem={activeMenu} setActiveItem={setActiveMenu} />
-            <div className="ml-64 print:ml-0">
+            <Sidebar 
+                activeItem={activeMenu} 
+                setActiveItem={setActiveMenu} 
+                isOpen={isSidebarOpen}
+                onClose={() => setIsSidebarOpen(false)}
+            />
+            {isSidebarOpen && (
+                <div 
+                    className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" 
+                    onClick={() => setIsSidebarOpen(false)}
+                ></div>
+            )}
+            <div className="lg:ml-64 print:ml-0">
                 <Header 
                     activePage={activeMenu} 
                     dateRange={dateRange}
                     onDateFilterClick={() => openModal('DATE_PICKER')}
+                    onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
                 />
-                <main className="p-8">
+                <main className="p-4 lg:p-8">
                     {renderContent()}
                 </main>
             </div>
@@ -526,20 +547,75 @@ export default function App() {
 
 // --- ФОРМЫ И ДРУГИЕ КОМПОНЕНТЫ В МОДАЛЬНЫХ ОКНАХ ---
 const EditTripForm = ({ onSave, onCancel, trip = {} }) => {
+    const parseTime = (timeString) => {
+        if (!timeString) return { hours: '', minutes: '' };
+        const parts = timeString.split(' ');
+        let hours = '';
+        let minutes = '';
+        const hourIndex = parts.indexOf('ч');
+        if (hourIndex > -1) hours = parseInt(parts[hourIndex - 1], 10) || '';
+        const minIndex = parts.indexOf('мин');
+        if (minIndex > -1) minutes = parseInt(parts[minIndex - 1], 10) || '';
+        return { hours, minutes };
+    };
+
+    const { hours: initialHours, minutes: initialMinutes } = parseTime(trip.time);
+
     const [formData, setFormData] = useState({
         date: trip.date || getISODateString(new Date()),
         start_point: trip.start_point || '',
         end_point: trip.end_point || '',
         start_km: trip.start_km || '',
         end_km: trip.end_km || '',
-        time: trip.time || '',
+        hours: initialHours,
+        minutes: initialMinutes,
         status: trip.status || 'В пути',
     });
+    const [isLocatingStart, setIsLocatingStart] = useState(false);
+    const [isLocatingEnd, setIsLocatingEnd] = useState(false);
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
-    const handleSubmit = (e) => { e.preventDefault(); onSave({ ...trip, ...formData }) };
+
+    const handleGetLocation = async (field) => {
+        if (!navigator.geolocation) {
+            alert('Геолокация не поддерживается вашим браузером.');
+            return;
+        }
+
+        if (field === 'start_point') setIsLocatingStart(true);
+        else if (field === 'end_point') setIsLocatingEnd(true);
+
+        navigator.geolocation.getCurrentPosition(async (position) => {
+            const { latitude, longitude } = position.coords;
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=ru`);
+                const data = await response.json();
+                const address = data.display_name || 'Не удалось определить адрес';
+                setFormData(prev => ({ ...prev, [field]: address }));
+            } catch (error) {
+                console.error("Ошибка при получении адреса:", error);
+                alert('Не удалось получить адрес. Пожалуйста, введите вручную.');
+            } finally {
+                if (field === 'start_point') setIsLocatingStart(false);
+                else if (field === 'end_point') setIsLocatingEnd(false);
+            }
+        }, (error) => {
+            console.error("Ошибка геолокации:", error);
+            alert('Не удалось определить геолокацию. Убедитесь, что вы предоставили доступ.');
+            if (field === 'start_point') setIsLocatingStart(false);
+            else if (field === 'end_point') setIsLocatingEnd(false);
+        });
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const { hours, minutes, ...rest } = formData;
+        const timeString = `${hours || 0} ч ${minutes || 0} мин`;
+        onSave({ ...trip, ...rest, time: timeString });
+    };
 
     return (
         <form onSubmit={handleSubmit}>
@@ -548,30 +624,55 @@ const EditTripForm = ({ onSave, onCancel, trip = {} }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label htmlFor="start_point" className="block text-sm font-medium text-slate-400 mb-2">Начальная точка</label>
-                        <input type="text" name="start_point" id="start_point" value={formData.start_point} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3" placeholder="Город А" required />
+                        <div className="relative">
+                            <input type="text" name="start_point" id="start_point" value={formData.start_point} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3 pr-10" placeholder="Город А" />
+                            <button type="button" onClick={() => handleGetLocation('start_point')} disabled={isLocatingStart} className="absolute inset-y-0 right-0 px-3 flex items-center text-slate-400 hover:text-white disabled:text-slate-600">
+                                {isLocatingStart ? (
+                                    <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                ) : (
+                                    <MapPinIcon className="h-5 w-5"/>
+                                )}
+                            </button>
+                        </div>
                     </div>
                     <div>
                         <label htmlFor="end_point" className="block text-sm font-medium text-slate-400 mb-2">Конечная точка</label>
-                        <input type="text" name="end_point" id="end_point" value={formData.end_point} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3" placeholder="Город Б" required />
+                        <div className="relative">
+                            <input type="text" name="end_point" id="end_point" value={formData.end_point} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3 pr-10" placeholder="Город Б" />
+                            <button type="button" onClick={() => handleGetLocation('end_point')} disabled={isLocatingEnd} className="absolute inset-y-0 right-0 px-3 flex items-center text-slate-400 hover:text-white disabled:text-slate-600">
+                                {isLocatingEnd ? (
+                                    <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                ) : (
+                                    <MapPinIcon className="h-5 w-5"/>
+                                )}
+                            </button>
+                        </div>
                     </div>
                 </div>
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                      <div>
                         <label htmlFor="start_km" className="block text-sm font-medium text-slate-400 mb-2">Начальный км</label>
-                        <input type="number" name="start_km" id="start_km" value={formData.start_km} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3" required />
+                        <input type="number" name="start_km" id="start_km" value={formData.start_km} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3" />
                     </div>
                      <div>
                         <label htmlFor="end_km" className="block text-sm font-medium text-slate-400 mb-2">Конечный км</label>
-                        <input type="number" name="end_km" id="end_km" value={formData.end_km} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3" required />
+                        <input type="number" name="end_km" id="end_km" value={formData.end_km} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3" />
                     </div>
                 </div>
                 <div>
-                    <label htmlFor="date" className="block text-sm font-medium text-slate-400 mb-2">Дата</label>
-                    <input type="date" name="date" id="date" value={formData.date} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3" required />
+                    <label className="block text-sm font-medium text-slate-400 mb-2">Дата</label>
+                    <input type="date" name="date" id="date" value={formData.date} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3" />
                 </div>
                  <div>
-                    <label htmlFor="time" className="block text-sm font-medium text-slate-400 mb-2">Время в пути (ч мин)</label>
-                    <input type="text" name="time" id="time" value={formData.time} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3" placeholder="Напр. 8 ч 15 мин" />
+                    <label className="block text-sm font-medium text-slate-400 mb-2">Время в пути</label>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <input type="number" name="hours" id="hours" value={formData.hours} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3" placeholder="Часы" min="0" />
+                        </div>
+                        <div>
+                            <input type="number" name="minutes" id="minutes" value={formData.minutes} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3" placeholder="Минуты" min="0" max="59" />
+                        </div>
+                    </div>
                 </div>
                  <div>
                     <label htmlFor="status" className="block text-sm font-medium text-slate-400 mb-2">Статус</label>
