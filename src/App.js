@@ -508,7 +508,7 @@ function CategoryManagerModal({ categories, onAdd, onDelete, onCancel }) {
                         {categories.map(cat => (
                             <li key={cat.id} className="flex justify-between items-center bg-slate-700/50 p-3 rounded-lg">
                                 <span>{cat.name}</span>
-                                <button onClick={() => onDelete(cat)} className="p-2 text-red-400 hover:text-red-300"><DeleteIcon width="16" height="16"/></button>
+                                <button onClick={() => onDelete(cat)} className="p-2 text-slate-400 hover:text-red-400 transition-colors"><DeleteIcon width="16" height="16"/></button>
                             </li>
                         ))}
                     </ul>
@@ -722,8 +722,8 @@ const TripsTable = ({ trips, onEdit, onDelete, onAdd, isReport = false }) => {
                                     {!isReport && (
                                         <td className="p-4">
                                             <div className="flex justify-center items-center space-x-2">
-                                                <button onClick={() => onEdit(trip)} className="p-2 rounded-md hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"><EditIcon /></button>
-                                                <button onClick={() => onDelete(trip)} className="p-2 rounded-md hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"><DeleteIcon /></button>
+                                                <button onClick={() => onEdit(trip)} className="p-2 rounded-md text-slate-400 hover:bg-slate-700 hover:text-green-400 transition-colors"><EditIcon /></button>
+                                                <button onClick={() => onDelete(trip)} className="p-2 rounded-md text-slate-400 hover:bg-slate-700 hover:text-red-400 transition-colors"><DeleteIcon /></button>
                                             </div>
                                         </td>
                                     )}
@@ -769,8 +769,8 @@ const FuelingsTable = ({ fuelings, onEdit, onDelete, onAdd }) => (
               <td className="p-4">{fueling.cost}</td>
               <td className="p-4">
                 <div className="flex justify-center items-center space-x-2">
-                  <button onClick={() => onEdit(fueling)} className="p-2 rounded-md hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"><EditIcon /></button>
-                  <button onClick={() => onDelete(fueling)} className="p-2 rounded-md hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"><DeleteIcon /></button>
+                  <button onClick={() => onEdit(fueling)} className="p-2 rounded-md text-slate-400 hover:bg-slate-700 hover:text-green-400 transition-colors"><EditIcon /></button>
+                  <button onClick={() => onDelete(fueling)} className="p-2 rounded-md text-slate-400 hover:bg-slate-700 hover:text-red-400 transition-colors"><DeleteIcon /></button>
                 </div>
               </td>
             </tr>
@@ -816,8 +816,8 @@ const ExpensesTable = ({ expenses, onEdit, onDelete, onAdd, onManageCategories }
               <td className="p-4">{expense.amount}</td>
               <td className="p-4">
                 <div className="flex justify-center items-center space-x-2">
-                  <button onClick={() => onEdit(expense)} className="p-2 rounded-md hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"><EditIcon /></button>
-                  <button onClick={() => onDelete(expense)} className="p-2 rounded-md hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"><DeleteIcon /></button>
+                  <button onClick={() => onEdit(expense)} className="p-2 rounded-md text-slate-400 hover:bg-slate-700 hover:text-green-400 transition-colors"><EditIcon /></button>
+                  <button onClick={() => onDelete(expense)} className="p-2 rounded-md text-slate-400 hover:bg-slate-700 hover:text-red-400 transition-colors"><DeleteIcon /></button>
                 </div>
               </td>
             </tr>
