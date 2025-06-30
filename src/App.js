@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
+import toast, { Toaster } from 'react-hot-toast';
 
 // --- НАСТРОЙКА SUPABASE ---
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
@@ -189,7 +190,7 @@ function EditTripForm({ onSave, onCancel, trip = {} }) {
 
     const handleGetLocation = async (field) => {
         if (!navigator.geolocation) {
-            alert('Геолокация не поддерживается вашим браузером.');
+            toast.error('Геолокация не поддерживается вашим браузером.');
             return;
         }
 
@@ -205,14 +206,14 @@ function EditTripForm({ onSave, onCancel, trip = {} }) {
                 setFormData(prev => ({ ...prev, [field]: address }));
             } catch (error) {
                 console.error("Ошибка при получении адреса:", error);
-                alert('Не удалось получить адрес. Пожалуйста, введите вручную.');
+                toast.error('Не удалось получить адрес. Пожалуйста, введите вручную.');
             } finally {
                 if (field === 'start_point') setIsLocatingStart(false);
                 else if (field === 'end_point') setIsLocatingEnd(false);
             }
         }, (error) => {
             console.error("Ошибка геолокации:", error);
-            alert('Не удалось определить геолокацию. Убедитесь, что вы предоставили доступ.');
+            toast.error('Не удалось определить геолокацию. Убедитесь, что вы предоставили доступ.');
             if (field === 'start_point') setIsLocatingStart(false);
             else if (field === 'end_point') setIsLocatingEnd(false);
         });
@@ -359,7 +360,7 @@ function FuelingForm({ onSave, onCancel, fueling = {} }) {
 
     const handleGetLocation = () => {
         if (!navigator.geolocation) {
-            alert('Геолокация не поддерживается вашим браузером.');
+            toast.error('Геолокация не поддерживается вашим браузером.');
             return;
         }
         setIsLocating(true);
@@ -372,13 +373,13 @@ function FuelingForm({ onSave, onCancel, fueling = {} }) {
                 setFormData(prev => ({ ...prev, location: address }));
             } catch (error) {
                 console.error("Ошибка при получении адреса:", error);
-                alert('Не удалось получить адрес. Пожалуйста, введите вручную.');
+                toast.error('Не удалось получить адрес. Пожалуйста, введите вручную.');
             } finally {
                 setIsLocating(false);
             }
         }, (error) => {
             console.error("Ошибка геолокации:", error);
-            alert('Не удалось определить геолокацию. Убедитесь, что вы предоставили доступ.');
+            toast.error('Не удалось определить геолокацию. Убедитесь, что вы предоставили доступ.');
             setIsLocating(false);
         });
     };
@@ -532,7 +533,7 @@ function DateRangePickerModal({ initialRange, onApply, onCancel }) {
         } else if (range.from && range.to) {
              onApply(range);
         } else {
-            alert("Пожалуйста, выберите и начальную, и конечную дату.")
+            toast.error("Пожалуйста, выберите и начальную, и конечную дату.")
         }
     };
 
@@ -990,6 +991,67 @@ const AuthScreen = ({ supabase }) => (
   </div>
 );
 
+// --- КОМПОНЕНТЫ-ЗАГЛУШКИ ДЛЯ ЗАГРУЗКИ ---
+const StatCardSkeleton = () => (
+    <div className="bg-[#1e293b] p-6 rounded-2xl shadow-lg flex-1 animate-pulse">
+        <div className="flex justify-between items-start">
+            <div className="p-3 rounded-lg bg-slate-700 h-12 w-12"></div>
+        </div>
+        <div className="mt-4">
+            <div className="h-8 bg-slate-700 rounded w-3/4"></div>
+            <div className="h-4 bg-slate-700 rounded w-1/2 mt-2"></div>
+        </div>
+    </div>
+);
+
+const TableRowSkeleton = () => (
+    <tr className="animate-pulse">
+        <td className="p-4"><div className="h-4 bg-slate-700 rounded"></div></td>
+        <td className="p-4"><div className="h-4 bg-slate-700 rounded"></div></td>
+        <td className="p-4"><div className="h-4 bg-slate-700 rounded"></div></td>
+        <td className="p-4"><div className="h-4 bg-slate-700 rounded"></div></td>
+        <td className="p-4"><div className="h-4 bg-slate-700 rounded"></div></td>
+        <td className="p-4"><div className="h-4 bg-slate-700 rounded"></div></td>
+        <td className="p-4"><div className="h-4 bg-slate-700 rounded"></div></td>
+    </tr>
+);
+
+const DashboardSkeleton = () => (
+    <>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+        </div>
+        <div className="bg-[#1e293b] p-6 rounded-2xl mt-8 shadow-lg">
+            <div className="flex justify-between items-center mb-6">
+                <div className="h-6 bg-slate-700 rounded w-1/4"></div>
+                <div className="h-10 bg-slate-700 rounded w-32"></div>
+            </div>
+            <table className="w-full">
+                <thead>
+                    <tr>
+                        <th className="p-4"><div className="h-4 bg-slate-700 rounded"></div></th>
+                        <th className="p-4"><div className="h-4 bg-slate-700 rounded"></div></th>
+                        <th className="p-4"><div className="h-4 bg-slate-700 rounded"></div></th>
+                        <th className="p-4"><div className="h-4 bg-slate-700 rounded"></div></th>
+                        <th className="p-4"><div className="h-4 bg-slate-700 rounded"></div></th>
+                        <th className="p-4"><div className="h-4 bg-slate-700 rounded"></div></th>
+                        <th className="p-4"><div className="h-4 bg-slate-700 rounded"></div></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <TableRowSkeleton />
+                    <TableRowSkeleton />
+                    <TableRowSkeleton />
+                </tbody>
+            </table>
+        </div>
+    </>
+);
+
+
 // --- ГЛАВНЫЙ КОМПОНЕНТ ПРИЛОЖЕНИЯ ---
 export default function App() {
     const [trips, setTrips] = useState([]);
@@ -1077,6 +1139,7 @@ export default function App() {
     const handleDeleteTrip = async (trip) => {
         if (!supabase) return;
         await supabase.from('trips').delete().eq('id', trip.id);
+        toast.success('Поездка удалена.');
         fetchData();
         closeModal();
     };
@@ -1084,6 +1147,7 @@ export default function App() {
     const handleAddTrip = async (newTrip) => {
         if (!supabase || !user) return;
         await supabase.from('trips').insert([{ ...newTrip, user_id: user.id }]);
+        toast.success('Поездка успешно добавлена!');
         fetchData();
         closeModal();
     };
@@ -1092,6 +1156,7 @@ export default function App() {
         if (!supabase) return;
         const { id, ...tripData } = updatedTrip;
         await supabase.from('trips').update(tripData).eq('id', id);
+        toast.success('Поездка успешно обновлена!');
         fetchData();
         closeModal();
     };
@@ -1099,6 +1164,7 @@ export default function App() {
     const handleDeleteFueling = async (fueling) => {
         if (!supabase) return;
         await supabase.from('fuelings').delete().eq('id', fueling.id);
+        toast.success('Заправка удалена.');
         fetchData();
         closeModal();
     };
@@ -1106,6 +1172,7 @@ export default function App() {
     const handleAddFueling = async (newFueling) => {
         if (!supabase || !user) return;
         await supabase.from('fuelings').insert([{ ...newFueling, user_id: user.id }]);
+        toast.success('Заправка успешно добавлена!');
         fetchData();
         closeModal();
     };
@@ -1114,6 +1181,7 @@ export default function App() {
         if (!supabase) return;
         const { id, ...fuelingData } = updatedFueling;
         await supabase.from('fuelings').update(fuelingData).eq('id', id);
+        toast.success('Заправка успешно обновлена!');
         fetchData();
         closeModal();
     };
@@ -1121,6 +1189,7 @@ export default function App() {
     const handleDeleteExpense = async (expense) => {
         if (!supabase) return;
         await supabase.from('expenses').delete().eq('id', expense.id);
+        toast.success('Расход удален.');
         fetchData();
         closeModal();
     };
@@ -1128,6 +1197,7 @@ export default function App() {
     const handleAddExpense = async (newExpense) => {
         if (!supabase || !user) return;
         await supabase.from('expenses').insert([{ ...newExpense, user_id: user.id }]);
+        toast.success('Расход успешно добавлен!');
         fetchData();
         closeModal();
     };
@@ -1136,6 +1206,7 @@ export default function App() {
         if (!supabase) return;
         const { id, ...expenseData } = updatedExpense;
         await supabase.from('expenses').update(expenseData).eq('id', id);
+        toast.success('Расход успешно обновлен!');
         fetchData();
         closeModal();
     };
@@ -1143,11 +1214,13 @@ export default function App() {
     const handleAddCategory = async (name) => {
         if (!supabase || !user) return;
         await supabase.from('expense_categories').insert([{ name, user_id: user.id }]);
+        toast.success('Категория добавлена!');
         fetchData();
     };
     const handleDeleteCategory = async (category) => {
         if (!supabase) return;
         await supabase.from('expense_categories').delete().eq('id', category.id);
+        toast.success('Категория удалена.');
         fetchData();
     };
 
@@ -1194,7 +1267,7 @@ export default function App() {
     ];
 
     const renderContent = () => {
-        if (loading) return <div className="text-center py-10">Загрузка...</div>;
+        if (loading) return <DashboardSkeleton />;
 
         switch (activeMenu) {
             case 'Главная':
@@ -1223,6 +1296,9 @@ export default function App() {
 
     return (
         <div className="bg-[#0f172a] min-h-screen font-sans text-white">
+            <Toaster position="top-center" toastOptions={{
+                className: 'bg-slate-800 text-white',
+            }}/>
             <Sidebar 
                 activeItem={activeMenu} 
                 setActiveItem={setActiveMenu} 
