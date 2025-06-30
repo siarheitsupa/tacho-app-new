@@ -1,14 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
-// ИСПРАВЛЕНИЕ: Стандартный импорт для Vercel после установки пакета
 import { createClient } from '@supabase/supabase-js';
+import { Auth } from '@supabase/auth-ui-react';
+import { ThemeSupa } from '@supabase/auth-ui-shared';
 
 // --- НАСТРОЙКА SUPABASE ---
-// Ключи будут браться из переменных окружения Vercel
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
 const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
-// -------------------------
-
-// Создаем клиент Supabase, только если ключи доступны
 const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 
 // --- ИКОНКИ ---
@@ -24,14 +21,14 @@ const ClockIcon = (props) => (
 const GasStationIcon = (props) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><line x1="15" x2="15" y1="13" y2="17" /><path d="M8.5 19H8a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-.5" /><path d="M18 13h-5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h5v0" /></svg>
 );
-const WrenchIcon = (props) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg>
+const CreditCardIcon = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
 );
 const FileTextIcon = (props) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" /><polyline points="14 2 14 8 20 8" /><line x1="16" x2="8" y1="13" y2="13" /><line x1="16" x2="8" y1="17" y2="17" /><line x1="10" x2="8" y1="9" y2="9" /></svg>
 );
 const SettingsIcon = (props) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" /><circle cx="12" cy="12" r="3" /></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l-.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" /><circle cx="12" cy="12" r="3" /></svg>
 );
 const EditIcon = (props) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /><path d="m15 5 4 4" /></svg>
@@ -54,7 +51,6 @@ const MapPinIcon = (props) => (
 const MenuIcon = (props) => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><line x1="4" x2="20" y1="12" y2="12" /><line x1="4" x2="20" y1="6" y2="6" /><line x1="4" x2="20" y1="18" y2="18" /></svg>
 );
-
 
 // --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
 const formatISODateToShort = (isoDate) => {
@@ -85,6 +81,24 @@ const calculateTotalTime = (trips) => {
     return `${finalHours} ч ${finalMinutes} мин`;
 };
 
+const calculateTotalWorkTime = (trips) => {
+    let totalMinutes = 0;
+    trips.forEach(trip => {
+        const timeString = trip.work_time || '';
+        const parts = timeString.split(' ');
+        let hours = 0;
+        let minutes = 0;
+        const hourIndex = parts.indexOf('ч');
+        if (hourIndex > -1) hours = parseInt(parts[hourIndex - 1], 10) || 0;
+        const minIndex = parts.indexOf('мин');
+        if (minIndex > -1) minutes = parseInt(parts[minIndex - 1], 10) || 0;
+        totalMinutes += (hours * 60) + minutes;
+    });
+    const finalHours = Math.floor(totalMinutes / 60);
+    const finalMinutes = totalMinutes % 60;
+    return `${finalHours} ч ${finalMinutes} мин`;
+};
+
 const calculateTotalDistance = (trips) => {
     let totalKm = 0;
     trips.forEach(trip => {
@@ -97,460 +111,20 @@ const calculateTotalDistance = (trips) => {
     return `${totalKm.toLocaleString('ru-RU')} км`;
 };
 
-const calculateTotalFuel = (fuelings) => {
-    let totalLiters = 0;
-    fuelings.forEach(fueling => {
-        totalLiters += Number(fueling.volume) || 0;
+const calculateTotalExpenses = (expenses, fuelings) => {
+    let total = 0;
+    expenses.forEach(expense => {
+        total += Number(expense.amount) || 0;
     });
-    return `${totalLiters.toLocaleString('ru-RU')} л`;
+    fuelings.forEach(fueling => {
+        total += Number(fueling.cost) || 0;
+    });
+    return `${total.toLocaleString('ru-RU', { style: 'currency', currency: 'EUR' })}`;
 };
 
-// --- КОМПОНЕНТЫ ИНТЕРФЕЙСА ---
-const Modal = ({ children, onClose }) => (
-    <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center p-4" onClick={onClose}>
-        <div className="bg-[#1e293b] rounded-2xl shadow-lg p-8 w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>{children}</div>
-    </div>
-);
-
-const Sidebar = ({ activeItem, setActiveItem, isOpen, onClose }) => (
-    <div className={`fixed inset-y-0 left-0 bg-[#1e293b] text-white w-64 p-6 flex flex-col z-50 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-transform duration-300 ease-in-out print:hidden`}>
-        <div className="flex items-center space-x-2 mb-12">
-            <TruckIcon className="h-8 w-8 text-blue-400" />
-            <h1 className="text-2xl font-bold">TachoApp</h1>
-        </div>
-        <nav className="flex-grow">
-            <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Меню</h2>
-            <ul>
-                {[
-                    { name: 'Главная', icon: HomeIcon },
-                    { name: 'Поездки', icon: TruckIcon },
-                    { name: 'Рабочее время', icon: ClockIcon },
-                    { name: 'Заправки', icon: GasStationIcon },
-                    { name: 'Техобслуживание', icon: WrenchIcon },
-                    { name: 'Отчеты', icon: FileTextIcon },
-                    { name: 'Настройки', icon: SettingsIcon },
-                ].map((item) => (
-                    <li 
-                        key={item.name} 
-                        className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer transition-all duration-200 mb-2 ${activeItem === item.name ? 'bg-blue-500 text-white' : 'hover:bg-slate-700'}`}
-                        onClick={() => { setActiveItem(item.name); onClose(); }}
-                    >
-                        <item.icon className="h-5 w-5" />
-                        <span>{item.name}</span>
-                    </li>
-                ))}
-            </ul>
-        </nav>
-    </div>
-);
-
-
-const Header = ({activePage, dateRange, onDateFilterClick, onMenuToggle}) => {
-    const formatDate = (date) => new Date(date).toLocaleDateString('ru-RU');
-    
-    return (
-        <header className="flex justify-between items-center p-4 lg:p-6 bg-slate-900 border-b border-slate-800 print:hidden">
-            <div className="flex items-center">
-                <button onClick={onMenuToggle} className="lg:hidden mr-4 text-white hover:text-blue-400">
-                    <MenuIcon className="h-6 w-6" />
-                </button>
-                <h1 className="text-xl lg:text-2xl font-bold text-white">{activePage === "Главная" ? "Обзор деятельности" : activePage}</h1>
-            </div>
-            <div className="flex items-center space-x-3 lg:space-x-6">
-                <button onClick={onDateFilterClick} className="flex items-center space-x-2 text-white bg-[#1e293b] px-3 py-1 lg:px-4 lg:py-2 rounded-lg hover:bg-slate-700 transition-colors text-sm lg:text-base">
-                    <CalendarIcon className="h-4 w-4 lg:h-5 lg:w-5 text-slate-400"/>
-                    <span className="hidden sm:inline">
-                        {dateRange.from && dateRange.to ? `${formatDate(dateRange.from)} - ${formatDate(dateRange.to)}` : "Весь период"}
-                    </span>
-                    <ChevronDownIcon className="h-4 w-4 lg:h-5 lg:w-5 text-slate-400"/>
-                </button>
-                <div className="flex items-center space-x-2 lg:space-x-3">
-                    <div className="bg-blue-500 h-8 w-8 lg:h-10 lg:w-10 rounded-full flex items-center justify-center font-bold text-white text-sm lg:text-base">ИП</div>
-                    <div className="hidden sm:block">
-                        <p className="font-semibold text-white text-sm lg:text-base">Иван Петров</p>
-                        <p className="text-xs lg:text-sm text-green-400">● В пути</p>
-                    </div>
-                </div>
-            </div>
-        </header>
-    );
-};
-
-const StatCard = ({ icon, value, label, color }) => (
-    <div className="bg-[#1e293b] p-6 rounded-2xl shadow-lg flex-1 transition-transform transform hover:-translate-y-1">
-        <div className="flex justify-between items-start">
-            <div className={`p-3 rounded-lg bg-${color}-500/20`}>{icon}</div>
-            <button className="text-slate-500 hover:text-white">...</button>
-        </div>
-        <div className="mt-4">
-            <p className="text-3xl font-bold text-white">{value}</p>
-            <p className="text-slate-400 mt-1">{label}</p>
-        </div>
-    </div>
-);
-
-const StatusBadge = ({ status }) => {
-    const statusClasses = {
-        'Завершено': 'bg-green-500/20 text-green-400',
-        'В процессе': 'bg-blue-500/20 text-blue-400',
-        'В пути': 'bg-orange-500/20 text-orange-400',
-    };
-    return (<span className={`px-3 py-1 text-sm font-medium rounded-full ${statusClasses[status] || 'bg-slate-500/20 text-slate-400'}`}>{status}</span>);
-};
-
-const TripsTable = ({ trips, onEdit, onDelete, onAdd, isReport = false }) => {
-    return (
-        <div className={`bg-[#1e293b] p-6 rounded-2xl mt-8 shadow-lg ${isReport ? 'bg-white/5' : ''}`}>
-            <div className={`flex justify-between items-center mb-6 ${isReport ? 'print:hidden' : ''}`}>
-                <h2 className="text-xl font-bold text-white">{isReport ? 'Детализация поездок' : 'Последние поездки'}</h2>
-                {!isReport && (
-                    <button onClick={onAdd} className="bg-blue-500 text-white font-semibold px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-blue-600 transition-all duration-200">
-                        <span>+</span>
-                        <span>Новая поездка</span>
-                    </button>
-                )}
-            </div>
-            <div className="overflow-x-auto">
-                <table className="w-full text-left text-slate-400">
-                    <thead className="border-b border-slate-700 text-sm uppercase">
-                        <tr>
-                            <th className="p-4">Маршрут</th>
-                            <th className="p-4">Дата</th>
-                            <th className="p-4">Пробег (км)</th>
-                            <th className="p-4">Время</th>
-                            <th className="p-4">Статус</th>
-                            {!isReport && <th className="p-4 text-center">Действия</th>}
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-800">
-                        {trips.map(trip => {
-                            const distance = (Number(trip.end_km) || 0) - (Number(trip.start_km) || 0);
-                            return (
-                                <tr key={trip.id} className="hover:bg-slate-800/50">
-                                    <td className="p-4 font-semibold text-white">{trip.start_point} → {trip.end_point}</td>
-                                    <td className="p-4">{formatISODateToShort(trip.date)}</td>
-                                    <td className="p-4">{distance > 0 ? distance.toLocaleString('ru-RU') : '0'}</td>
-                                    <td className="p-4">{trip.time}</td>
-                                    <td className="p-4"><StatusBadge status={trip.status} /></td>
-                                    {!isReport && (
-                                        <td className="p-4">
-                                            <div className="flex justify-center items-center space-x-2">
-                                                <button onClick={() => onEdit(trip)} className="p-2 rounded-md hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"><EditIcon /></button>
-                                                <button onClick={() => onDelete(trip)} className="p-2 rounded-md hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"><DeleteIcon /></button>
-                                            </div>
-                                        </td>
-                                    )}
-                                </tr>
-                            )
-                        })}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    );
-};
-
-
-const FuelingsTable = ({ fuelings, onEdit, onDelete, onAdd }) => (
-    <div className="bg-[#1e293b] p-6 rounded-2xl mt-8 shadow-lg">
-        <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-bold text-white">Журнал заправок</h2>
-            <button onClick={onAdd} className="bg-blue-500 text-white font-semibold px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-blue-600 transition-all duration-200">
-                <span>+</span>
-                <span>Добавить заправку</span>
-            </button>
-        </div>
-        <div className="overflow-x-auto">
-            <table className="w-full text-left text-slate-400">
-                <thead className="border-b border-slate-700 text-sm uppercase">
-                    <tr>
-                        <th className="p-4">Дата</th>
-                        <th className="p-4">Местоположение</th>
-                        <th className="p-4">Объем (л)</th>
-                        <th className="p-4">Стоимость (€)</th>
-                        <th className="p-4 text-center">Действия</th>
-                    </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800">
-                    {fuelings.map(fueling => (
-                        <tr key={fueling.id} className="hover:bg-slate-800/50">
-                            <td className="p-4 font-semibold text-white">{formatISODateToShort(fueling.date)}</td>
-                            <td className="p-4">{fueling.location}</td>
-                            <td className="p-4">{fueling.volume}</td>
-                            <td className="p-4">{fueling.cost}</td>
-                            <td className="p-4">
-                                <div className="flex justify-center items-center space-x-2">
-                                    <button onClick={() => onEdit(fueling)} className="p-2 rounded-md hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"><EditIcon /></button>
-                                    <button onClick={() => onDelete(fueling)} className="p-2 rounded-md hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"><DeleteIcon /></button>
-                                </div>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
-    </div>
-);
-
-const PlaceholderPage = ({ title }) => (
-    <div className="flex flex-col items-center justify-center h-full mt-20 text-slate-500">
-        <WrenchIcon className="w-24 h-24 mb-4"/>
-        <h2 className="text-3xl font-bold text-slate-400">Раздел "{title}"</h2>
-        <p className="mt-2 text-lg">Этот раздел находится в разработке.</p>
-    </div>
-);
-
-const WorkingTimePage = ({ totalTime }) => (
-    <div className="bg-[#1e293b] p-8 rounded-2xl mt-8 shadow-lg text-center">
-        <ClockIcon className="w-24 h-24 mb-4 text-blue-400 mx-auto"/>
-        <h2 className="text-3xl font-bold text-white">Общее рабочее время</h2>
-        <p className="mt-4 text-5xl font-bold text-blue-400">{totalTime}</p>
-        <p className="mt-2 text-slate-400">Суммарное время за рулем из всех поездок.</p>
-    </div>
-);
-
-const ReportsPage = ({ trips }) => {
-    const totalTrips = trips.length;
-    const totalDistance = calculateTotalDistance(trips);
-    const totalTime = calculateTotalTime(trips);
-    
-    return (
-        <div className="bg-[#1e293b] p-8 rounded-2xl shadow-lg">
-             <div className="flex justify-between items-center mb-8 print:hidden">
-                <h2 className="text-3xl font-bold text-white">Сводный отчет</h2>
-                <button onClick={() => window.print()} className="bg-blue-500 text-white font-semibold px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-blue-600 transition-all duration-200">
-                    <PrinterIcon className="h-5 w-5"/>
-                    <span>Печать отчета</span>
-                </button>
-            </div>
-            
-            <div className="print:block">
-                 <div className="hidden print:block text-center mb-8">
-                    <h1 className="text-2xl font-bold">Сводный отчет по поездкам</h1>
-                    <p className="text-slate-400">за период {formatISODateToShort(trips[trips.length - 1]?.date)} - {formatISODateToShort(trips[0]?.date)}</p>
-                 </div>
-                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div className="bg-slate-800/50 p-6 rounded-xl text-center">
-                        <p className="text-sm text-slate-400 uppercase">Всего поездок</p>
-                        <p className="text-4xl font-bold mt-2">{totalTrips}</p>
-                    </div>
-                     <div className="bg-slate-800/50 p-6 rounded-xl text-center">
-                        <p className="text-sm text-slate-400 uppercase">Общее расстояние</p>
-                        <p className="text-4xl font-bold mt-2">{totalDistance}</p>
-                    </div>
-                     <div className="bg-slate-800/50 p-6 rounded-xl text-center">
-                        <p className="text-sm text-slate-400 uppercase">Общее время</p>
-                        <p className="text-4xl font-bold mt-2">{totalTime}</p>
-                    </div>
-                </div>
-                 <TripsTable trips={trips} isReport={true} />
-            </div>
-        </div>
-    )
-};
-
-// --- ГЛАВНЫЙ КОМПОНЕНТ ПРИЛОЖЕНИЯ ---
-export default function App() {
-    const [trips, setTrips] = useState([]);
-    const [fuelings, setFuelings] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [modal, setModal] = useState({ isOpen: false, type: null, data: null });
-    const [activeMenu, setActiveMenu] = useState('Главная');
-    const [dateRange, setDateRange] = useState({ from: null, to: null });
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-    const fetchData = useCallback(async () => {
-        if (!supabase) return; // Не выполнять, если supabase не инициализирован
-        setLoading(true);
-        console.log(`Fetching data for range: ${dateRange.from} to ${dateRange.to}`);
-        
-        let tripsQuery = supabase.from('trips').select('*').order('date', { ascending: false });
-        let fuelingsQuery = supabase.from('fuelings').select('*').order('date', { ascending: false });
-        
-        if(dateRange.from && dateRange.to) {
-            tripsQuery = tripsQuery.gte('date', dateRange.from).lte('date', dateRange.to);
-            fuelingsQuery = fuelingsQuery.gte('date', dateRange.from).lte('date', dateRange.to);
-        }
-
-        const [tripsResult, fuelingsResult] = await Promise.all([tripsQuery, fuelingsQuery]);
-
-        if (tripsResult.error) console.error('Ошибка получения поездок:', tripsResult.error);
-        else setTrips(tripsResult.data || []);
-
-        if (fuelingsResult.error) console.error('Ошибка получения заправок:', fuelingsResult.error);
-        else setFuelings(fuelingsResult.data || []);
-        
-        setLoading(false);
-    }, [dateRange]);
-
-    useEffect(() => {
-        if (supabase) {
-            const channel = supabase.channel('schema-db-changes')
-                .on(
-                    'postgres_changes',
-                    { event: '*', schema: 'public' },
-                    (payload) => {
-                        console.log('Change received!', payload);
-                        fetchData();
-                    }
-                )
-                .subscribe();
-
-            // Определяем асинхронную функцию внутри useEffect и вызываем ее
-            const loadInitialData = async () => {
-                await fetchData();
-            };
-            loadInitialData();
-
-            return () => {
-                supabase.removeChannel(channel);
-            };
-        }
-    }, [fetchData]);
-
-
-    // --- ОБРАБОТЧИКИ ДЕЙСТВИЙ ---
-    const handleDeleteTrip = async (trip) => {
-        await supabase.from('trips').delete().eq('id', trip.id);
-        closeModal();
-    };
-    
-    const handleAddTrip = async (newTrip) => {
-        await supabase.from('trips').insert([newTrip]);
-        closeModal();
-    };
-
-    const handleUpdateTrip = async (updatedTrip) => {
-        const { id, ...tripData } = updatedTrip;
-        await supabase.from('trips').update(tripData).eq('id', id);
-        closeModal();
-    };
-
-    const handleDeleteFueling = async (fueling) => {
-        await supabase.from('fuelings').delete().eq('id', fueling.id);
-        closeModal();
-    };
-    
-    const handleAddFueling = async (newFueling) => {
-        await supabase.from('fuelings').insert([newFueling]);
-        closeModal();
-    };
-
-    const handleUpdateFueling = async (updatedFueling) => {
-        const { id, ...fuelingData } = updatedFueling;
-        await supabase.from('fuelings').update(fuelingData).eq('id', id);
-        closeModal();
-    };
-
-    const closeModal = () => setModal({ isOpen: false, type: null, data: null });
-    const openModal = (type, data = null) => setModal({ isOpen: true, type, data });
-    
-    if (!supabase) {
-        return <div className="bg-[#0f172a] min-h-screen flex items-center justify-center text-white text-xl">Настройка подключения к базе данных...</div>
-    }
-    
-    const totalDrivingTime = calculateTotalTime(trips);
-    const totalDistance = calculateTotalDistance(trips);
-    const totalFuel = calculateTotalFuel(fuelings);
-    
-    const stats = [
-        { icon: <TruckIcon className="h-6 w-6 text-blue-400"/>, value: totalDistance, label: 'Пробег за период', color: 'blue'},
-        { icon: <ClockIcon className="h-6 w-6 text-green-400"/>, value: totalDrivingTime, label: 'Время за рулем', color: 'green'},
-        { icon: <ClockIcon className="h-6 w-6 text-red-400"/>, value: '32 ч', label: 'Время отдыха', color: 'red'},
-        { icon: <GasStationIcon className="h-6 w-6 text-yellow-400"/>, value: totalFuel, label: 'Расход топлива', color: 'yellow'},
-    ];
-
-    const renderContent = () => {
-        if (loading) return <div className="text-center py-10">Загрузка...</div>;
-
-        switch (activeMenu) {
-            case 'Главная':
-                return (
-                    <>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                           {stats.map((stat, index) => <StatCard key={index} {...stat} />)}
-                        </div>
-                        <TripsTable trips={trips} onEdit={(trip) => openModal('EDIT_TRIP', trip)} onDelete={(trip) => openModal('DELETE_TRIP', trip)} onAdd={() => openModal('ADD_TRIP')} />
-                    </>
-                );
-            case 'Поездки':
-                return <TripsTable trips={trips} onEdit={(trip) => openModal('EDIT_TRIP', trip)} onDelete={(trip) => openModal('DELETE_TRIP', trip)} onAdd={() => openModal('ADD_TRIP')} />;
-            case 'Рабочее время':
-                return <WorkingTimePage totalTime={totalDrivingTime} />;
-            case 'Заправки':
-                return <FuelingsTable fuelings={fuelings} onEdit={(f) => openModal('EDIT_FUELING', f)} onDelete={(f) => openModal('DELETE_FUELING', f)} onAdd={() => openModal('ADD_FUELING')} />;
-            case 'Отчеты':
-                 return <ReportsPage trips={trips} />;
-            default:
-                return <PlaceholderPage title={activeMenu} />;
-        }
-    };
-
-    return (
-        <div className="bg-[#0f172a] min-h-screen font-sans text-white">
-            <Sidebar 
-                activeItem={activeMenu} 
-                setActiveItem={setActiveMenu} 
-                isOpen={isSidebarOpen}
-                onClose={() => setIsSidebarOpen(false)}
-            />
-            {isSidebarOpen && (
-                <div 
-                    className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" 
-                    onClick={() => setIsSidebarOpen(false)}
-                ></div>
-            )}
-            <div className="lg:ml-64 print:ml-0">
-                <Header 
-                    activePage={activeMenu} 
-                    dateRange={dateRange}
-                    onDateFilterClick={() => openModal('DATE_PICKER')}
-                    onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
-                />
-                <main className="p-4 lg:p-8">
-                    {renderContent()}
-                </main>
-            </div>
-
-            {modal.isOpen && (
-                <Modal onClose={closeModal}>
-                    {modal.type === 'DATE_PICKER' && (
-                        <DateRangePickerModal 
-                            initialRange={dateRange}
-                            onApply={(newRange) => {
-                                setDateRange(newRange);
-                                closeModal();
-                            }}
-                            onCancel={closeModal}
-                        />
-                    )}
-                    {modal.type === 'ADD_TRIP' && <EditTripForm onSave={handleAddTrip} onCancel={closeModal} />}
-                    {modal.type === 'EDIT_TRIP' && <EditTripForm trip={modal.data} onSave={handleUpdateTrip} onCancel={closeModal} />}
-                    {modal.type === 'DELETE_TRIP' && (
-                        <div className="text-center">
-                            <h2 className="text-2xl font-bold mb-4">Удалить поездку?</h2>
-                            <p className="text-slate-400 mb-8">Вы уверены, что хотите удалить поездку <span className="font-bold text-white">{modal.data.start_point} → {modal.data.end_point}</span>?</p>
-                            <div className="flex justify-center space-x-4"><button onClick={closeModal} className="px-6 py-2 rounded-lg bg-slate-600 hover:bg-slate-700">Отмена</button><button onClick={() => handleDeleteTrip(modal.data)} className="px-6 py-2 rounded-lg bg-red-600 hover:bg-red-700">Удалить</button></div>
-                        </div>
-                    )}
-                    
-                    {modal.type === 'ADD_FUELING' && <FuelingForm onSave={handleAddFueling} onCancel={closeModal} />}
-                    {modal.type === 'EDIT_FUELING' && <FuelingForm fueling={modal.data} onSave={handleUpdateFueling} onCancel={closeModal} />}
-                    {modal.type === 'DELETE_FUELING' && (
-                         <div className="text-center">
-                            <h2 className="text-2xl font-bold mb-4">Удалить заправку?</h2>
-                            <p className="text-slate-400 mb-8">Вы уверены, что хотите удалить запись о заправке от <span className="font-bold text-white">{formatISODateToShort(modal.data.date)}</span>?</p>
-                            <div className="flex justify-center space-x-4"><button onClick={closeModal} className="px-6 py-2 rounded-lg bg-slate-600 hover:bg-slate-700">Отмена</button><button onClick={() => handleDeleteFueling(modal.data)} className="px-6 py-2 rounded-lg bg-red-600 hover:bg-red-700">Удалить</button></div>
-                        </div>
-                    )}
-                </Modal>
-            )}
-        </div>
-    );
-}
 
 // --- ФОРМЫ И ДРУГИЕ КОМПОНЕНТЫ В МОДАЛЬНЫХ ОКНАХ ---
-const EditTripForm = ({ onSave, onCancel, trip = {} }) => {
+function EditTripForm({ onSave, onCancel, trip = {} }) {
     const parseTime = (timeString) => {
         if (!timeString) return { hours: '', minutes: '' };
         const parts = timeString.split(' ');
@@ -564,6 +138,7 @@ const EditTripForm = ({ onSave, onCancel, trip = {} }) => {
     };
 
     const { hours: initialHours, minutes: initialMinutes } = parseTime(trip.time);
+    const { hours: initialWorkHours, minutes: initialWorkMinutes } = parseTime(trip.work_time);
 
     const [formData, setFormData] = useState({
         date: trip.date || getISODateString(new Date()),
@@ -573,6 +148,8 @@ const EditTripForm = ({ onSave, onCancel, trip = {} }) => {
         end_km: trip.end_km || '',
         hours: initialHours,
         minutes: initialMinutes,
+        work_hours: initialWorkHours,
+        work_minutes: initialWorkMinutes,
         status: trip.status || 'В пути',
     });
     const [isLocatingStart, setIsLocatingStart] = useState(false);
@@ -616,22 +193,25 @@ const EditTripForm = ({ onSave, onCancel, trip = {} }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        const { hours, minutes, start_km, end_km, ...rest } = formData;
+        const { hours, minutes, work_hours, work_minutes, start_km, end_km, ...rest } = formData;
 
-        // Убедитесь, что числовые поля являются числами или null
         const parsedStartKm = start_km === '' ? null : Number(start_km);
         const parsedEndKm = end_km === '' ? null : Number(end_km);
         const parsedHours = hours === '' ? null : Number(hours);
         const parsedMinutes = minutes === '' ? null : Number(minutes);
+        const parsedWorkHours = work_hours === '' ? null : Number(work_hours);
+        const parsedWorkMinutes = work_minutes === '' ? null : Number(work_minutes);
 
         const timeString = `${parsedHours || 0} ч ${parsedMinutes || 0} мин`;
+        const workTimeString = `${parsedWorkHours || 0} ч ${parsedWorkMinutes || 0} мин`;
 
         onSave({
             ...trip,
             ...rest,
             start_km: parsedStartKm,
             end_km: parsedEndKm,
-            time: timeString
+            time: timeString,
+            work_time: workTimeString,
         });
     };
 
@@ -692,6 +272,17 @@ const EditTripForm = ({ onSave, onCancel, trip = {} }) => {
                         </div>
                     </div>
                 </div>
+                <div>
+                    <label className="block text-sm font-medium text-slate-400 mb-2">Время работы</label>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <input type="number" name="work_hours" id="work_hours" value={formData.work_hours} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3" placeholder="Часы" min="0" />
+                        </div>
+                        <div>
+                            <input type="number" name="work_minutes" id="work_minutes" value={formData.work_minutes} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3" placeholder="Минуты" min="0" max="59" />
+                        </div>
+                    </div>
+                </div>
                  <div>
                     <label htmlFor="status" className="block text-sm font-medium text-slate-400 mb-2">Статус</label>
                     <select name="status" id="status" value={formData.status} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3 appearance-none">
@@ -705,9 +296,9 @@ const EditTripForm = ({ onSave, onCancel, trip = {} }) => {
             </div>
         </form>
     );
-};
+}
 
-const FuelingForm = ({ onSave, onCancel, fueling = {} }) => {
+function FuelingForm({ onSave, onCancel, fueling = {} }) {
     const [formData, setFormData] = useState({
         date: fueling.date || getISODateString(new Date()),
         location: fueling.location || '',
@@ -723,7 +314,14 @@ const FuelingForm = ({ onSave, onCancel, fueling = {} }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        onSave({ ...fueling, ...formData });
+        
+        const dataToSave = {
+            ...formData,
+            volume: formData.volume === '' ? null : Number(formData.volume),
+            cost: formData.cost === '' ? null : Number(formData.cost),
+        };
+
+        onSave({ ...fueling, ...dataToSave });
     };
 
     const handleGetLocation = () => {
@@ -758,12 +356,12 @@ const FuelingForm = ({ onSave, onCancel, fueling = {} }) => {
             <div className="space-y-4">
                  <div>
                     <label htmlFor="date" className="block text-sm font-medium text-slate-400 mb-2">Дата</label>
-                    <input type="date" name="date" id="date" value={formData.date} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3" required />
+                    <input type="date" name="date" id="date" value={formData.date} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3" />
                 </div>
                  <div>
                     <label htmlFor="location" className="block text-sm font-medium text-slate-400 mb-2">Местоположение</label>
                     <div className="relative">
-                        <input type="text" name="location" id="location" value={formData.location} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3 pr-10" placeholder="Например, АЗС 'Shell', Берлин" required />
+                        <input type="text" name="location" id="location" value={formData.location} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3 pr-10" placeholder="Например, АЗС 'Shell', Берлин" />
                         <button type="button" onClick={handleGetLocation} disabled={isLocating} className="absolute inset-y-0 right-0 px-3 flex items-center text-slate-400 hover:text-white disabled:text-slate-600">
                             {isLocating ? (
                                 <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
@@ -775,11 +373,11 @@ const FuelingForm = ({ onSave, onCancel, fueling = {} }) => {
                 </div>
                 <div>
                     <label htmlFor="volume" className="block text-sm font-medium text-slate-400 mb-2">Объем (л)</label>
-                    <input type="number" step="0.01" name="volume" id="volume" value={formData.volume} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3" required />
+                    <input type="number" step="0.01" name="volume" id="volume" value={formData.volume} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3" />
                 </div>
                 <div>
                     <label htmlFor="cost" className="block text-sm font-medium text-slate-400 mb-2">Стоимость (€)</label>
-                    <input type="number" step="0.01" name="cost" id="cost" value={formData.cost} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3" required />
+                    <input type="number" step="0.01" name="cost" id="cost" value={formData.cost} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3" />
                 </div>
             </div>
             <div className="flex justify-end space-x-4 mt-8">
@@ -788,9 +386,68 @@ const FuelingForm = ({ onSave, onCancel, fueling = {} }) => {
             </div>
         </form>
     );
-};
+}
 
-const DateRangePickerModal = ({ initialRange, onApply, onCancel }) => {
+function ExpenseForm({ onSave, onCancel, expense = {} }) {
+    const [formData, setFormData] = useState({
+        date: expense.date || getISODateString(new Date()),
+        name: expense.name || '',
+        category: expense.category || 'Другое',
+        amount: expense.amount || '',
+    });
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const dataToSave = {
+            ...formData,
+            amount: formData.amount === '' ? null : Number(formData.amount),
+        };
+        onSave({ ...expense, ...dataToSave });
+    };
+
+    return (
+        <form onSubmit={handleSubmit}>
+            <h2 className="text-2xl font-bold mb-6 text-white">{expense.id ? 'Редактировать расход' : 'Новый расход'}</h2>
+            <div className="space-y-4">
+                 <div>
+                    <label htmlFor="date" className="block text-sm font-medium text-slate-400 mb-2">Дата</label>
+                    <input type="date" name="date" id="date" value={formData.date} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3" />
+                </div>
+                 <div>
+                    <label htmlFor="name" className="block text-sm font-medium text-slate-400 mb-2">Название</label>
+                    <input type="text" name="name" id="name" value={formData.name} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3" placeholder="Например, Платная дорога A1" />
+                </div>
+                <div>
+                    <label htmlFor="category" className="block text-sm font-medium text-slate-400 mb-2">Категория</label>
+                    <select name="category" id="category" value={formData.category} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3 appearance-none">
+                        <option>Парковка</option>
+                        <option>Платные дороги</option>
+                        <option>Мойка</option>
+                        <option>Штрафы</option>
+                        <option>Техобслуживание</option>
+                        <option>Другое</option>
+                    </select>
+                </div>
+                <div>
+                    <label htmlFor="amount" className="block text-sm font-medium text-slate-400 mb-2">Сумма (€)</label>
+                    <input type="number" step="0.01" name="amount" id="amount" value={formData.amount} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3" />
+                </div>
+            </div>
+            <div className="flex justify-end space-x-4 mt-8">
+                <button type="button" onClick={onCancel} className="px-6 py-2 rounded-lg bg-slate-600 hover:bg-slate-700 transition-colors">Отмена</button>
+                <button type="submit" className="px-6 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 transition-colors">Сохранить</button>
+            </div>
+        </form>
+    );
+}
+
+
+function DateRangePickerModal({ initialRange, onApply, onCancel }) {
     const [range, setRange] = useState(initialRange);
 
     const handleApply = () => {
@@ -837,4 +494,655 @@ const DateRangePickerModal = ({ initialRange, onApply, onCancel }) => {
             </div>
         </div>
     );
+}
+
+
+// --- КОМПОНЕНТЫ ИНТЕРФЕЙСА ---
+const Modal = ({ children, onClose }) => (
+    <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center p-4" onClick={onClose}>
+        <div className="bg-[#1e293b] rounded-2xl shadow-lg p-8 w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>{children}</div>
+    </div>
+);
+
+const Sidebar = ({ activeItem, setActiveItem, isOpen, onClose }) => (
+    <div className={`fixed inset-y-0 left-0 bg-[#1e293b] text-white w-64 p-6 flex flex-col z-50 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-transform duration-300 ease-in-out print:hidden`}>
+        <div className="flex items-center space-x-2 mb-12">
+            <TruckIcon className="h-8 w-8 text-blue-400" />
+            <h1 className="text-2xl font-bold">TachoApp</h1>
+        </div>
+        <nav className="flex-grow">
+            <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Меню</h2>
+            <ul>
+                {[
+                    { name: 'Главная', icon: HomeIcon },
+                    { name: 'Поездки', icon: TruckIcon },
+                    { name: 'Рабочее время', icon: ClockIcon },
+                    { name: 'Заправки', icon: GasStationIcon },
+                    { name: 'Расходы', icon: CreditCardIcon },
+                    { name: 'Отчеты', icon: FileTextIcon },
+                    { name: 'Настройки', icon: SettingsIcon },
+                ].map((item) => (
+                    <li 
+                        key={item.name} 
+                        className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer transition-all duration-200 mb-2 ${activeItem === item.name ? 'bg-blue-500 text-white' : 'hover:bg-slate-700'}`}
+                        onClick={() => { setActiveItem(item.name); onClose(); }}
+                    >
+                        <item.icon className="h-5 w-5" />
+                        <span>{item.name}</span>
+                    </li>
+                ))}
+            </ul>
+        </nav>
+    </div>
+);
+
+const ProfileMenu = ({ user, onLogout }) => (
+  <div className="relative group">
+    <div className="flex items-center space-x-2 cursor-pointer">
+      <div className="bg-blue-500 h-10 w-10 rounded-full flex items-center justify-center font-bold text-white">
+        {user.email[0].toUpperCase()}
+      </div>
+      <ChevronDownIcon className="h-4 w-4 text-slate-400 group-hover:text-white" />
+    </div>
+    <div className="absolute right-0 top-full mt-2 w-48 bg-[#1e293b] rounded-lg shadow-lg py-2 z-50 hidden group-hover:block">
+      <div className="px-4 py-2 border-b border-slate-700">
+        <p className="font-semibold text-white break-words">{user.email}</p>
+      </div>
+      <button 
+        onClick={onLogout}
+        className="w-full text-left px-4 py-2 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
+      >
+        Выйти
+      </button>
+    </div>
+  </div>
+);
+
+const Header = ({activePage, dateRange, onDateFilterClick, onMenuToggle, user, onLogout}) => {
+    const formatDate = (date) => new Date(date).toLocaleDateString('ru-RU');
+    
+    return (
+        <header className="flex justify-between items-center p-4 lg:p-6 bg-slate-900 border-b border-slate-800 print:hidden">
+            <div className="flex items-center">
+                <button onClick={onMenuToggle} className="lg:hidden mr-4 text-white hover:text-blue-400">
+                    <MenuIcon className="h-6 w-6" />
+                </button>
+                <h1 className="text-xl lg:text-2xl font-bold text-white">{activePage === "Главная" ? "Обзор деятельности" : activePage}</h1>
+            </div>
+            <div className="flex items-center space-x-3 lg:space-x-6">
+                <button onClick={onDateFilterClick} className="flex items-center space-x-2 text-white bg-[#1e293b] px-3 py-1 lg:px-4 lg:py-2 rounded-lg hover:bg-slate-700 transition-colors text-sm lg:text-base">
+                    <CalendarIcon className="h-4 w-4 lg:h-5 lg:w-5 text-slate-400"/>
+                    <span className="hidden sm:inline">
+                        {dateRange.from && dateRange.to ? `${formatDate(dateRange.from)} - ${formatDate(dateRange.to)}` : "Весь период"}
+                    </span>
+                    <ChevronDownIcon className="h-4 w-4 lg:h-5 lg:w-5 text-slate-400"/>
+                </button>
+                <div className="flex items-center space-x-2 lg:space-x-3">
+                  {user && <ProfileMenu user={user} onLogout={onLogout} />}
+                </div>
+            </div>
+        </header>
+    );
 };
+
+const StatCard = ({ icon, value, label, color }) => (
+    <div className="bg-[#1e293b] p-6 rounded-2xl shadow-lg flex-1 transition-transform transform hover:-translate-y-1">
+        <div className="flex justify-between items-start">
+            <div className={`p-3 rounded-lg bg-${color}-500/20`}>{icon}</div>
+            <button className="text-slate-500 hover:text-white">...</button>
+        </div>
+        <div className="mt-4">
+            <p className="text-3xl font-bold text-white">{value}</p>
+            <p className="text-slate-400 mt-1">{label}</p>
+        </div>
+    </div>
+);
+
+const StatusBadge = ({ status }) => {
+    const statusClasses = {
+        'Завершено': 'bg-green-500/20 text-green-400',
+        'В процессе': 'bg-blue-500/20 text-blue-400',
+        'В пути': 'bg-orange-500/20 text-orange-400',
+    };
+    return (<span className={`px-3 py-1 text-sm font-medium rounded-full whitespace-nowrap ${statusClasses[status] || 'bg-slate-500/20 text-slate-400'}`}>{status}</span>);
+};
+
+const TripsTable = ({ trips, onEdit, onDelete, onAdd, isReport = false }) => {
+    return (
+        <div className={`bg-[#1e293b] p-6 rounded-2xl mt-8 shadow-lg ${isReport ? 'bg-white/5' : ''}`}>
+            <div className={`flex justify-between items-center mb-6 ${isReport ? 'print:hidden' : ''}`}>
+                <h2 className="text-xl font-bold text-white">{isReport ? 'Детализация поездок' : 'Последние поездки'}</h2>
+                {!isReport && (
+                    <button onClick={onAdd} className="bg-blue-500 text-white font-semibold px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-blue-600 transition-all duration-200">
+                        <span>+</span>
+                        <span>Новая поездка</span>
+                    </button>
+                )}
+            </div>
+            <div className="overflow-x-auto">
+                <table className="w-full text-left text-slate-400">
+                    <thead className="border-b border-slate-700 text-sm uppercase">
+                        <tr>
+                            <th className="p-4">Маршрут</th>
+                            <th className="p-4">Дата</th>
+                            <th className="p-4">Пробег (км)</th>
+                            <th className="p-4">Время в пути</th>
+                            <th className="p-4">Время работы</th>
+                            <th className="p-4">Статус</th>
+                            {!isReport && <th className="p-4 text-center">Действия</th>}
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800">
+                        {trips.map(trip => {
+                            const distance = (Number(trip.end_km) || 0) - (Number(trip.start_km) || 0);
+                            return (
+                                <tr key={trip.id} className="hover:bg-slate-800/50">
+                                    <td className="p-4 font-semibold text-white">{trip.start_point} → {trip.end_point}</td>
+                                    <td className="p-4">{formatISODateToShort(trip.date)}</td>
+                                    <td className="p-4">{distance > 0 ? distance.toLocaleString('ru-RU') : '0'}</td>
+                                    <td className="p-4">{trip.time}</td>
+                                    <td className="p-4">{trip.work_time}</td>
+                                    <td className="p-4"><StatusBadge status={trip.status} /></td>
+                                    {!isReport && (
+                                        <td className="p-4">
+                                            <div className="flex justify-center items-center space-x-2">
+                                                <button onClick={() => onEdit(trip)} className="p-2 rounded-md hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"><EditIcon /></button>
+                                                <button onClick={() => onDelete(trip)} className="p-2 rounded-md hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"><DeleteIcon /></button>
+                                            </div>
+                                        </td>
+                                    )}
+                                </tr>
+                            )
+                        })}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+};
+
+
+const FuelingsTable = ({ fuelings, onEdit, onDelete, onAdd }) => (
+  <div className="bg-[#1e293b] p-6 rounded-2xl mt-8 shadow-lg">
+    <div className="flex justify-between items-center mb-6">
+      <h2 className="text-xl font-bold text-white">Журнал заправок</h2>
+      <button onClick={onAdd} className="bg-blue-500 text-white font-semibold px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-blue-600 transition-all duration-200">
+        <span>+</span>
+        <span>Добавить заправку</span>
+      </button>
+    </div>
+    <div className="overflow-x-auto">
+      <table className="w-full text-left text-slate-400">
+        <thead className="border-b border-slate-700 text-sm uppercase">
+          <tr>
+            <th className="p-4">Дата</th>
+            <th className="p-4">Местоположение</th>
+            <th className="p-4">Объем (л)</th>
+            <th className="p-4">Стоимость (€)</th>
+            <th className="p-4 text-center">Действия</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-800">
+          {fuelings.map(fueling => (
+            <tr key={fueling.id} className="hover:bg-slate-800/50">
+              <td className="p-4 font-semibold text-white">{formatISODateToShort(fueling.date)}</td>
+              <td className="p-4">{fueling.location}</td>
+              <td className="p-4">{fueling.volume}</td>
+              <td className="p-4">{fueling.cost}</td>
+              <td className="p-4">
+                <div className="flex justify-center items-center space-x-2">
+                  <button onClick={() => onEdit(fueling)} className="p-2 rounded-md hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"><EditIcon /></button>
+                  <button onClick={() => onDelete(fueling)} className="p-2 rounded-md hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"><DeleteIcon /></button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+);
+
+const ExpensesTable = ({ expenses, onEdit, onDelete, onAdd }) => (
+  <div className="bg-[#1e293b] p-6 rounded-2xl mt-8 shadow-lg">
+    <div className="flex justify-between items-center mb-6">
+      <h2 className="text-xl font-bold text-white">Журнал расходов</h2>
+      <button onClick={onAdd} className="bg-blue-500 text-white font-semibold px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-blue-600 transition-all duration-200">
+        <span>+</span>
+        <span>Добавить расход</span>
+      </button>
+    </div>
+    <div className="overflow-x-auto">
+      <table className="w-full text-left text-slate-400">
+        <thead className="border-b border-slate-700 text-sm uppercase">
+          <tr>
+            <th className="p-4">Дата</th>
+            <th className="p-4">Название</th>
+            <th className="p-4">Категория</th>
+            <th className="p-4">Сумма (€)</th>
+            <th className="p-4 text-center">Действия</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-800">
+          {expenses.map(expense => (
+            <tr key={expense.id} className="hover:bg-slate-800/50">
+              <td className="p-4 font-semibold text-white">{formatISODateToShort(expense.date)}</td>
+              <td className="p-4">{expense.name}</td>
+              <td className="p-4">{expense.category}</td>
+              <td className="p-4">{expense.amount}</td>
+              <td className="p-4">
+                <div className="flex justify-center items-center space-x-2">
+                  <button onClick={() => onEdit(expense)} className="p-2 rounded-md hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"><EditIcon /></button>
+                  <button onClick={() => onDelete(expense)} className="p-2 rounded-md hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"><DeleteIcon /></button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+);
+
+const PlaceholderPage = ({ title }) => (
+    <div className="flex flex-col items-center justify-center h-full mt-20 text-slate-500">
+        <CreditCardIcon className="w-24 h-24 mb-4"/>
+        <h2 className="text-3xl font-bold text-slate-400">Раздел "{title}"</h2>
+        <p className="mt-2 text-lg">Этот раздел находится в разработке.</p>
+    </div>
+);
+
+const WorkingTimePage = ({ totalTime }) => (
+    <div className="bg-[#1e293b] p-8 rounded-2xl mt-8 shadow-lg text-center">
+        <ClockIcon className="w-24 h-24 mb-4 text-blue-400 mx-auto"/>
+        <h2 className="text-3xl font-bold text-white">Общее рабочее время</h2>
+        <p className="mt-4 text-5xl font-bold text-blue-400">{totalTime}</p>
+        <p className="mt-2 text-slate-400">Суммарное время за рулем из всех поездок.</p>
+    </div>
+);
+
+const ReportsPage = ({ trips }) => {
+    const totalTrips = trips.length;
+    const totalDistance = calculateTotalDistance(trips);
+    const totalTime = calculateTotalTime(trips);
+    
+    return (
+        <div className="bg-[#1e293b] p-8 rounded-2xl shadow-lg">
+             <div className="flex justify-between items-center mb-8 print:hidden">
+                <h2 className="text-3xl font-bold text-white">Сводный отчет</h2>
+                <button onClick={() => window.print()} className="bg-blue-500 text-white font-semibold px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-blue-600 transition-all duration-200">
+                    <PrinterIcon className="h-5 w-5"/>
+                    <span>Печать отчета</span>
+                </button>
+            </div>
+            
+            <div className="print:block">
+                 <div className="hidden print:block text-center mb-8">
+                    <h1 className="text-2xl font-bold">Сводный отчет по поездкам</h1>
+                    <p className="text-slate-400">за период {formatISODateToShort(trips[trips.length - 1]?.date)} - {formatISODateToShort(trips[0]?.date)}</p>
+                 </div>
+                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div className="bg-slate-800/50 p-6 rounded-xl text-center">
+                        <p className="text-sm text-slate-400 uppercase">Всего поездок</p>
+                        <p className="text-4xl font-bold mt-2">{totalTrips}</p>
+                    </div>
+                     <div className="bg-slate-800/50 p-6 rounded-xl text-center">
+                        <p className="text-sm text-slate-400 uppercase">Общее расстояние</p>
+                        <p className="text-4xl font-bold mt-2">{totalDistance}</p>
+                    </div>
+                     <div className="bg-slate-800/50 p-6 rounded-xl text-center">
+                        <p className="text-sm text-slate-400 uppercase">Общее время</p>
+                        <p className="text-4xl font-bold mt-2">{totalTime}</p>
+                    </div>
+                </div>
+                 <TripsTable trips={trips} isReport={true} />
+            </div>
+        </div>
+    )
+};
+
+
+// --- ЭКРАН АУТЕНТИФИКАЦИИ ---
+const AuthScreen = ({ supabase }) => (
+  <div className="min-h-screen bg-[#0f172a] flex flex-col items-center justify-center p-4">
+    <div className="bg-[#1e293b] p-8 rounded-2xl shadow-lg w-full max-w-md">
+      <div className="flex items-center justify-center mb-8">
+        <TruckIcon className="h-12 w-12 text-blue-400" />
+        <h1 className="text-3xl font-bold ml-2">TachoApp</h1>
+      </div>
+      <Auth
+        supabaseClient={supabase}
+        appearance={{ 
+          theme: ThemeSupa,
+          variables: {
+            default: {
+              colors: {
+                brand: '#3b82f6',
+                brandAccent: '#2563eb',
+              }
+            }
+          }
+        }}
+        theme="dark"
+        providers={['google']}
+        localization={{
+          variables: {
+            sign_in: {
+              email_label: "Email",
+              password_label: "Пароль",
+              button_label: "Войти",
+              loading_button_label: "Вход...",
+              link_text: "Уже есть аккаунт? Войти"
+            },
+            sign_up: {
+              email_label: "Email",
+              password_label: "Пароль",
+              button_label: "Зарегистрироваться",
+              loading_button_label: "Регистрация...",
+              link_text: "Нет аккаунта? Зарегистрироваться"
+            }
+          }
+        }}
+      />
+    </div>
+  </div>
+);
+
+// --- ГЛАВНЫЙ КОМПОНЕНТ ПРИЛОЖЕНИЯ ---
+export default function App() {
+    const [trips, setTrips] = useState([]);
+    const [fuelings, setFuelings] = useState([]);
+    const [expenses, setExpenses] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [modal, setModal] = useState({ isOpen: false, type: null, data: null });
+    const [activeMenu, setActiveMenu] = useState('Главная');
+    const [dateRange, setDateRange] = useState({ from: null, to: null });
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [user, setUser] = useState(null);
+    const [authLoading, setAuthLoading] = useState(true);
+
+    // Проверка сессии при загрузке
+    useEffect(() => {
+      let isMounted = true;
+
+      if (!supabase) {
+        console.error("Supabase client is not initialized");
+        if (isMounted) {
+          setAuthLoading(false);
+        }
+        return;
+      }
+
+      const checkSession = async () => {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (!isMounted) return;
+        
+        if (error) {
+          console.error('Ошибка проверки сессии:', error);
+        }
+        setUser(session?.user || null);
+        setAuthLoading(false);
+      };
+
+      checkSession();
+
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        (event, session) => {
+          if (isMounted) {
+            setUser(session?.user || null);
+          }
+        }
+      );
+
+      return () => {
+        isMounted = false;
+        subscription?.unsubscribe();
+      };
+    }, []);
+
+    const fetchData = useCallback(async () => {
+        if (!supabase || !user) return;
+        setLoading(true);
+        
+        let tripsQuery = supabase.from('trips').select('*').eq('user_id', user.id).order('date', { ascending: false });
+        let fuelingsQuery = supabase.from('fuelings').select('*').eq('user_id', user.id).order('date', { ascending: false });
+        let expensesQuery = supabase.from('expenses').select('*').eq('user_id', user.id).order('date', { ascending: false });
+        
+        if(dateRange.from && dateRange.to) {
+            tripsQuery = tripsQuery.gte('date', dateRange.from).lte('date', dateRange.to);
+            fuelingsQuery = fuelingsQuery.gte('date', dateRange.from).lte('date', dateRange.to);
+            expensesQuery = expensesQuery.gte('date', dateRange.from).lte('date', dateRange.to);
+        }
+
+        const [tripsResult, fuelingsResult, expensesResult] = await Promise.all([tripsQuery, fuelingsQuery, expensesQuery]);
+
+        if (tripsResult.error) console.error('Ошибка получения поездок:', tripsResult.error);
+        else setTrips(tripsResult.data || []);
+
+        if (fuelingsResult.error) console.error('Ошибка получения заправок:', fuelingsResult.error);
+        else setFuelings(fuelingsResult.data || []);
+
+        if (expensesResult.error) console.error('Ошибка получения расходов:', expensesResult.error);
+        else setExpenses(expensesResult.data || []);
+        
+        setLoading(false);
+    }, [dateRange, user]);
+
+    // ИЗМЕНЕНО: Удалена подписка на realtime, так как мы обновляем данные вручную
+    useEffect(() => {
+        if (user) {
+            fetchData();
+        }
+    }, [user, fetchData]);
+
+    // --- ОБРАБОТЧИКИ ДЕЙСТВИЙ ---
+    // ИСПРАВЛЕНО: Добавлен вызов fetchData() после каждой операции
+    const handleDeleteTrip = async (trip) => {
+        if (!supabase) return;
+        await supabase.from('trips').delete().eq('id', trip.id);
+        fetchData();
+        closeModal();
+    };
+    
+    const handleAddTrip = async (newTrip) => {
+        if (!supabase || !user) return;
+        await supabase.from('trips').insert([{ ...newTrip, user_id: user.id }]);
+        fetchData();
+        closeModal();
+    };
+
+    const handleUpdateTrip = async (updatedTrip) => {
+        if (!supabase) return;
+        const { id, ...tripData } = updatedTrip;
+        await supabase.from('trips').update(tripData).eq('id', id);
+        fetchData();
+        closeModal();
+    };
+
+    const handleDeleteFueling = async (fueling) => {
+        if (!supabase) return;
+        await supabase.from('fuelings').delete().eq('id', fueling.id);
+        fetchData();
+        closeModal();
+    };
+    
+    const handleAddFueling = async (newFueling) => {
+        if (!supabase || !user) return;
+        await supabase.from('fuelings').insert([{ ...newFueling, user_id: user.id }]);
+        fetchData();
+        closeModal();
+    };
+
+    const handleUpdateFueling = async (updatedFueling) => {
+        if (!supabase) return;
+        const { id, ...fuelingData } = updatedFueling;
+        await supabase.from('fuelings').update(fuelingData).eq('id', id);
+        fetchData();
+        closeModal();
+    };
+
+    const handleDeleteExpense = async (expense) => {
+        if (!supabase) return;
+        await supabase.from('expenses').delete().eq('id', expense.id);
+        fetchData();
+        closeModal();
+    };
+    
+    const handleAddExpense = async (newExpense) => {
+        if (!supabase || !user) return;
+        await supabase.from('expenses').insert([{ ...newExpense, user_id: user.id }]);
+        fetchData();
+        closeModal();
+    };
+
+    const handleUpdateExpense = async (updatedExpense) => {
+        if (!supabase) return;
+        const { id, ...expenseData } = updatedExpense;
+        await supabase.from('expenses').update(expenseData).eq('id', id);
+        fetchData();
+        closeModal();
+    };
+
+    const closeModal = () => setModal({ isOpen: false, type: null, data: null });
+    const openModal = (type, data = null) => setModal({ isOpen: true, type, data });
+    
+    const handleLogout = async () => {
+        if (!supabase) return;
+        const { error } = await supabase.auth.signOut();
+        if (error) console.error('Ошибка выхода:', error);
+        setUser(null);
+    };
+
+    if (!supabase) {
+        return <div className="bg-[#0f172a] min-h-screen flex items-center justify-center text-white text-xl">Настройка подключения к базе данных...</div>
+    }
+
+    if (authLoading) {
+        return (
+            <div className="bg-[#0f172a] min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
+                    <p className="mt-4 text-slate-400">Проверка сессии...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (!user) {
+        return <AuthScreen supabase={supabase} />;
+    }
+    
+    const totalDrivingTime = calculateTotalTime(trips);
+    const totalWorkTime = calculateTotalWorkTime(trips); 
+    const totalDistance = calculateTotalDistance(trips);
+    const totalExpenses = calculateTotalExpenses(expenses, fuelings);
+    
+    const stats = [
+        { icon: <TruckIcon className="h-6 w-6 text-blue-400"/>, value: totalDistance, label: 'Пробег за период', color: 'blue'},
+        { icon: <ClockIcon className="h-6 w-6 text-green-400"/>, value: totalDrivingTime, label: 'Время за рулем', color: 'green'},
+        { icon: <ClockIcon className="h-6 w-6 text-purple-400"/>, value: totalWorkTime, label: 'Время работы', color: 'purple'},
+        { icon: <CreditCardIcon className="h-6 w-6 text-red-400"/>, value: totalExpenses, label: 'Общие расходы', color: 'red'},
+    ];
+
+    const renderContent = () => {
+        if (loading) return <div className="text-center py-10">Загрузка...</div>;
+
+        switch (activeMenu) {
+            case 'Главная':
+                return (
+                    <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                           {stats.map((stat, index) => <StatCard key={index} {...stat} />)}
+                        </div>
+                        <TripsTable trips={trips.slice(0, 5)} onEdit={(trip) => openModal('EDIT_TRIP', trip)} onDelete={(trip) => openModal('DELETE_TRIP', trip)} onAdd={() => openModal('ADD_TRIP')} />
+                    </>
+                );
+            case 'Поездки':
+                return <TripsTable trips={trips} onEdit={(trip) => openModal('EDIT_TRIP', trip)} onDelete={(trip) => openModal('DELETE_TRIP', trip)} onAdd={() => openModal('ADD_TRIP')} />;
+            case 'Рабочее время':
+                return <WorkingTimePage totalTime={totalDrivingTime} />;
+            case 'Заправки':
+                return <FuelingsTable fuelings={fuelings} onEdit={(f) => openModal('EDIT_FUELING', f)} onDelete={(f) => openModal('DELETE_FUELING', f)} onAdd={() => openModal('ADD_FUELING')} />;
+            case 'Расходы':
+                return <ExpensesTable expenses={expenses} onEdit={(e) => openModal('EDIT_EXPENSE', e)} onDelete={(e) => openModal('DELETE_EXPENSE', e)} onAdd={() => openModal('ADD_EXPENSE')} />;
+            case 'Отчеты':
+                 return <ReportsPage trips={trips} />;
+            default:
+                return <PlaceholderPage title={activeMenu} />;
+        }
+    };
+
+    return (
+        <div className="bg-[#0f172a] min-h-screen font-sans text-white">
+            <Sidebar 
+                activeItem={activeMenu} 
+                setActiveItem={setActiveMenu} 
+                isOpen={isSidebarOpen}
+                onClose={() => setIsSidebarOpen(false)}
+            />
+            {isSidebarOpen && (
+                <div 
+                    className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" 
+                    onClick={() => setIsSidebarOpen(false)}
+                ></div>
+            )}
+            <div className="lg:ml-64 print:ml-0">
+                <Header 
+                    activePage={activeMenu} 
+                    dateRange={dateRange}
+                    onDateFilterClick={() => openModal('DATE_PICKER')}
+                    onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+                    user={user}
+                    onLogout={handleLogout}
+                />
+                <main className="p-4 lg:p-8">
+                    {renderContent()}
+                </main>
+            </div>
+
+            {modal.isOpen && (
+                <Modal onClose={closeModal}>
+                    {modal.type === 'DATE_PICKER' && (
+                        <DateRangePickerModal 
+                            initialRange={dateRange}
+                            onApply={(newRange) => {
+                                setDateRange(newRange);
+                                closeModal();
+                            }}
+                            onCancel={closeModal}
+                        />
+                    )}
+                    {modal.type === 'ADD_TRIP' && <EditTripForm onSave={handleAddTrip} onCancel={closeModal} />}
+                    {modal.type === 'EDIT_TRIP' && <EditTripForm trip={modal.data} onSave={handleUpdateTrip} onCancel={closeModal} />}
+                    {modal.type === 'DELETE_TRIP' && (
+                        <div className="text-center">
+                            <h2 className="text-2xl font-bold mb-4">Удалить поездку?</h2>
+                            <p className="text-slate-400 mb-8">Вы уверены, что хотите удалить поездку <span className="font-bold text-white">{modal.data.start_point} → {modal.data.end_point}</span>?</p>
+                            <div className="flex justify-center space-x-4"><button onClick={closeModal} className="px-6 py-2 rounded-lg bg-slate-600 hover:bg-slate-700">Отмена</button><button onClick={() => handleDeleteTrip(modal.data)} className="px-6 py-2 rounded-lg bg-red-600 hover:bg-red-700">Удалить</button></div>
+                        </div>
+                    )}
+                    
+                    {modal.type === 'ADD_FUELING' && <FuelingForm onSave={handleAddFueling} onCancel={closeModal} />}
+                    {modal.type === 'EDIT_FUELING' && <FuelingForm fueling={modal.data} onSave={handleUpdateFueling} onCancel={closeModal} />}
+                    {modal.type === 'DELETE_FUELING' && (
+                         <div className="text-center">
+                            <h2 className="text-2xl font-bold mb-4">Удалить заправку?</h2>
+                            <p className="text-slate-400 mb-8">Вы уверены, что хотите удалить запись о заправке от <span className="font-bold text-white">{formatISODateToShort(modal.data.date)}</span>?</p>
+                            <div className="flex justify-center space-x-4"><button onClick={closeModal} className="px-6 py-2 rounded-lg bg-slate-600 hover:bg-slate-700">Отмена</button><button onClick={() => handleDeleteFueling(modal.data)} className="px-6 py-2 rounded-lg bg-red-600 hover:bg-red-700">Удалить</button></div>
+                        </div>
+                    )}
+
+                    {modal.type === 'ADD_EXPENSE' && <ExpenseForm onSave={handleAddExpense} onCancel={closeModal} />}
+                    {modal.type === 'EDIT_EXPENSE' && <ExpenseForm expense={modal.data} onSave={handleUpdateExpense} onCancel={closeModal} />}
+                    {modal.type === 'DELETE_EXPENSE' && (
+                         <div className="text-center">
+                            <h2 className="text-2xl font-bold mb-4">Удалить расход?</h2>
+                            <p className="text-slate-400 mb-8">Вы уверены, что хотите удалить запись <span className="font-bold text-white">{modal.data.name}</span>?</p>
+                            <div className="flex justify-center space-x-4"><button onClick={closeModal} className="px-6 py-2 rounded-lg bg-slate-600 hover:bg-slate-700">Отмена</button><button onClick={() => handleDeleteExpense(modal.data)} className="px-6 py-2 rounded-lg bg-red-600 hover:bg-red-700">Удалить</button></div>
+                        </div>
+                    )}
+                </Modal>
+            )}
+        </div>
+    );
+}
