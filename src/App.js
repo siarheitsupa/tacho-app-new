@@ -122,6 +122,32 @@ const calculateTotalExpenses = (expenses, fuelings) => {
     return `${total.toLocaleString('ru-RU', { style: 'currency', currency: 'EUR' })}`;
 };
 
+const calculateAverageConsumption = (fuelings) => {
+    const sortedFuelings = fuelings
+        .filter(f => f.odometer)
+        .sort((a, b) => a.odometer - b.odometer);
+
+    if (sortedFuelings.length < 2) {
+        return '---';
+    }
+
+    const firstOdometer = sortedFuelings[0].odometer;
+    const lastOdometer = sortedFuelings[sortedFuelings.length - 1].odometer;
+    const totalDistance = lastOdometer - firstOdometer;
+
+    let totalVolume = 0;
+    for (let i = 1; i < sortedFuelings.length; i++) {
+        totalVolume += Number(sortedFuelings[i].volume) || 0;
+    }
+
+    if (totalDistance <= 0 || totalVolume <= 0) {
+        return '---';
+    }
+
+    const consumption = (totalVolume / totalDistance) * 100;
+    return `${consumption.toFixed(2)} л/100км`;
+};
+
 
 // --- ФОРМЫ И ДРУГИЕ КОМПОНЕНТЫ В МОДАЛЬНЫХ ОКНАХ ---
 function EditTripForm({ onSave, onCancel, trip = {} }) {
@@ -151,6 +177,7 @@ function EditTripForm({ onSave, onCancel, trip = {} }) {
         work_hours: initialWorkHours,
         work_minutes: initialWorkMinutes,
         status: trip.status || 'В пути',
+        notes: trip.notes || '',
     });
     const [isLocatingStart, setIsLocatingStart] = useState(false);
     const [isLocatingEnd, setIsLocatingEnd] = useState(false);
@@ -283,6 +310,10 @@ function EditTripForm({ onSave, onCancel, trip = {} }) {
                         </div>
                     </div>
                 </div>
+                <div>
+                    <label htmlFor="notes" className="block text-sm font-medium text-slate-400 mb-2">Заметки</label>
+                    <textarea name="notes" id="notes" value={formData.notes} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3" placeholder="Любая дополнительная информация о поездке..."/>
+                </div>
                  <div>
                     <label htmlFor="status" className="block text-sm font-medium text-slate-400 mb-2">Статус</label>
                     <select name="status" id="status" value={formData.status} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3 appearance-none">
@@ -304,6 +335,7 @@ function FuelingForm({ onSave, onCancel, fueling = {} }) {
         location: fueling.location || '',
         volume: fueling.volume || '',
         cost: fueling.cost || '',
+        odometer: fueling.odometer || '',
     });
     const [isLocating, setIsLocating] = useState(false);
 
@@ -319,6 +351,7 @@ function FuelingForm({ onSave, onCancel, fueling = {} }) {
             ...formData,
             volume: formData.volume === '' ? null : Number(formData.volume),
             cost: formData.cost === '' ? null : Number(formData.cost),
+            odometer: formData.odometer === '' ? null : Number(formData.odometer),
         };
 
         onSave({ ...fueling, ...dataToSave });
@@ -372,6 +405,10 @@ function FuelingForm({ onSave, onCancel, fueling = {} }) {
                     </div>
                 </div>
                 <div>
+                    <label htmlFor="odometer" className="block text-sm font-medium text-slate-400 mb-2">Пробег (одометр)</label>
+                    <input type="number" name="odometer" id="odometer" value={formData.odometer} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3" />
+                </div>
+                <div>
                     <label htmlFor="volume" className="block text-sm font-medium text-slate-400 mb-2">Объем (л)</label>
                     <input type="number" step="0.01" name="volume" id="volume" value={formData.volume} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3" />
                 </div>
@@ -388,13 +425,16 @@ function FuelingForm({ onSave, onCancel, fueling = {} }) {
     );
 }
 
-function ExpenseForm({ onSave, onCancel, expense = {} }) {
+function ExpenseForm({ onSave, onCancel, expense = {}, categories = [] }) {
     const [formData, setFormData] = useState({
         date: expense.date || getISODateString(new Date()),
         name: expense.name || '',
         category: expense.category || 'Другое',
         amount: expense.amount || '',
     });
+    
+    const defaultCategories = ['Парковка', 'Платные дороги', 'Мойка', 'Штрафы', 'Техобслуживание', 'Другое'];
+    const allCategories = [...new Set([...defaultCategories, ...categories.map(c => c.name)])];
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -425,12 +465,7 @@ function ExpenseForm({ onSave, onCancel, expense = {} }) {
                 <div>
                     <label htmlFor="category" className="block text-sm font-medium text-slate-400 mb-2">Категория</label>
                     <select name="category" id="category" value={formData.category} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3 appearance-none">
-                        <option>Парковка</option>
-                        <option>Платные дороги</option>
-                        <option>Мойка</option>
-                        <option>Штрафы</option>
-                        <option>Техобслуживание</option>
-                        <option>Другое</option>
+                        {allCategories.map(cat => <option key={cat}>{cat}</option>)}
                     </select>
                 </div>
                 <div>
@@ -446,6 +481,47 @@ function ExpenseForm({ onSave, onCancel, expense = {} }) {
     );
 }
 
+function CategoryManagerModal({ categories, onAdd, onDelete, onCancel }) {
+    const [newCategory, setNewCategory] = useState('');
+
+    const handleAdd = () => {
+        if (newCategory.trim()) {
+            onAdd(newCategory.trim());
+            setNewCategory('');
+        }
+    };
+
+    return (
+        <div>
+            <h2 className="text-2xl font-bold mb-6 text-white">Управление категориями</h2>
+            <div className="space-y-4 mb-6">
+                <h3 className="text-lg font-semibold text-slate-300">Добавить категорию</h3>
+                <div className="flex space-x-2">
+                    <input type="text" value={newCategory} onChange={(e) => setNewCategory(e.target.value)} className="flex-grow bg-slate-700 border border-slate-600 rounded-lg p-3" placeholder="Название новой категории" />
+                    <button onClick={handleAdd} className="px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 font-semibold">Добавить</button>
+                </div>
+            </div>
+            <div className="space-y-2">
+                <h3 className="text-lg font-semibold text-slate-300">Существующие категории</h3>
+                {categories.length > 0 ? (
+                    <ul className="max-h-60 overflow-y-auto space-y-2">
+                        {categories.map(cat => (
+                            <li key={cat.id} className="flex justify-between items-center bg-slate-700/50 p-3 rounded-lg">
+                                <span>{cat.name}</span>
+                                <button onClick={() => onDelete(cat)} className="p-2 text-red-400 hover:text-red-300"><DeleteIcon width="16" height="16"/></button>
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p className="text-slate-500">Вы еще не добавили ни одной категории.</p>
+                )}
+            </div>
+            <div className="flex justify-end mt-8">
+                <button type="button" onClick={onCancel} className="px-6 py-2 rounded-lg bg-slate-600 hover:bg-slate-700">Закрыть</button>
+            </div>
+        </div>
+    );
+}
 
 function DateRangePickerModal({ initialRange, onApply, onCancel }) {
     const [range, setRange] = useState(initialRange);
@@ -677,6 +753,7 @@ const FuelingsTable = ({ fuelings, onEdit, onDelete, onAdd }) => (
           <tr>
             <th className="p-4">Дата</th>
             <th className="p-4">Местоположение</th>
+            <th className="p-4">Пробег (км)</th>
             <th className="p-4">Объем (л)</th>
             <th className="p-4">Стоимость (€)</th>
             <th className="p-4 text-center">Действия</th>
@@ -687,6 +764,7 @@ const FuelingsTable = ({ fuelings, onEdit, onDelete, onAdd }) => (
             <tr key={fueling.id} className="hover:bg-slate-800/50">
               <td className="p-4 font-semibold text-white">{formatISODateToShort(fueling.date)}</td>
               <td className="p-4">{fueling.location}</td>
+              <td className="p-4">{fueling.odometer}</td>
               <td className="p-4">{fueling.volume}</td>
               <td className="p-4">{fueling.cost}</td>
               <td className="p-4">
@@ -703,14 +781,20 @@ const FuelingsTable = ({ fuelings, onEdit, onDelete, onAdd }) => (
   </div>
 );
 
-const ExpensesTable = ({ expenses, onEdit, onDelete, onAdd }) => (
+const ExpensesTable = ({ expenses, onEdit, onDelete, onAdd, onManageCategories }) => (
   <div className="bg-[#1e293b] p-6 rounded-2xl mt-8 shadow-lg">
     <div className="flex justify-between items-center mb-6">
       <h2 className="text-xl font-bold text-white">Журнал расходов</h2>
-      <button onClick={onAdd} className="bg-blue-500 text-white font-semibold px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-blue-600 transition-all duration-200">
-        <span>+</span>
-        <span>Добавить расход</span>
-      </button>
+      <div className="flex space-x-2">
+          <button onClick={onManageCategories} className="bg-slate-600 text-white font-semibold px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-slate-700 transition-all duration-200">
+            <SettingsIcon className="h-5 w-5"/>
+            <span>Категории</span>
+          </button>
+          <button onClick={onAdd} className="bg-blue-500 text-white font-semibold px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-blue-600 transition-all duration-200">
+            <span>+</span>
+            <span>Добавить расход</span>
+          </button>
+      </div>
     </div>
     <div className="overflow-x-auto">
       <table className="w-full text-left text-slate-400">
@@ -761,10 +845,63 @@ const WorkingTimePage = ({ totalTime }) => (
     </div>
 );
 
-const ReportsPage = ({ trips }) => {
+const ExpensesReportTable = ({ expenses, fuelings }) => {
+    const combinedExpenses = [
+        ...fuelings.map(f => ({
+            id: `fuel-${f.id}`,
+            date: f.date,
+            name: f.location || 'Заправка',
+            category: 'Топливо',
+            amount: f.cost
+        })),
+        ...expenses.map(e => ({
+            id: `exp-${e.id}`,
+            date: e.date,
+            name: e.name,
+            category: e.category,
+            amount: e.amount
+        }))
+    ];
+
+    combinedExpenses.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    return (
+        <div className="bg-[#1e293b] p-6 rounded-2xl mt-8 shadow-lg bg-white/5">
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-white">Детализация расходов</h2>
+            </div>
+            <div className="overflow-x-auto">
+                <table className="w-full text-left text-slate-400">
+                    <thead className="border-b border-slate-700 text-sm uppercase">
+                        <tr>
+                            <th className="p-4">Дата</th>
+                            <th className="p-4">Название</th>
+                            <th className="p-4">Категория</th>
+                            <th className="p-4">Сумма (€)</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800">
+                        {combinedExpenses.map(item => (
+                            <tr key={item.id} className="hover:bg-slate-800/50">
+                                <td className="p-4 font-semibold text-white">{formatISODateToShort(item.date)}</td>
+                                <td className="p-4">{item.name}</td>
+                                <td className="p-4">{item.category}</td>
+                                <td className="p-4">{Number(item.amount || 0).toLocaleString('ru-RU', { style: 'currency', currency: 'EUR' })}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+};
+
+
+const ReportsPage = ({ trips, expenses, fuelings }) => {
     const totalTrips = trips.length;
     const totalDistance = calculateTotalDistance(trips);
     const totalTime = calculateTotalTime(trips);
+    const totalExpenses = calculateTotalExpenses(expenses, fuelings);
     
     return (
         <div className="bg-[#1e293b] p-8 rounded-2xl shadow-lg">
@@ -781,7 +918,7 @@ const ReportsPage = ({ trips }) => {
                     <h1 className="text-2xl font-bold">Сводный отчет по поездкам</h1>
                     <p className="text-slate-400">за период {formatISODateToShort(trips[trips.length - 1]?.date)} - {formatISODateToShort(trips[0]?.date)}</p>
                  </div>
-                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     <div className="bg-slate-800/50 p-6 rounded-xl text-center">
                         <p className="text-sm text-slate-400 uppercase">Всего поездок</p>
                         <p className="text-4xl font-bold mt-2">{totalTrips}</p>
@@ -794,8 +931,13 @@ const ReportsPage = ({ trips }) => {
                         <p className="text-sm text-slate-400 uppercase">Общее время</p>
                         <p className="text-4xl font-bold mt-2">{totalTime}</p>
                     </div>
+                    <div className="bg-slate-800/50 p-6 rounded-xl text-center">
+                        <p className="text-sm text-slate-400 uppercase">Общие расходы</p>
+                        <p className="text-4xl font-bold mt-2">{totalExpenses}</p>
+                    </div>
                 </div>
                  <TripsTable trips={trips} isReport={true} />
+                 <ExpensesReportTable expenses={expenses} fuelings={fuelings} />
             </div>
         </div>
     )
@@ -853,6 +995,7 @@ export default function App() {
     const [trips, setTrips] = useState([]);
     const [fuelings, setFuelings] = useState([]);
     const [expenses, setExpenses] = useState([]);
+    const [expenseCategories, setExpenseCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [modal, setModal] = useState({ isOpen: false, type: null, data: null });
     const [activeMenu, setActiveMenu] = useState('Главная');
@@ -861,7 +1004,6 @@ export default function App() {
     const [user, setUser] = useState(null);
     const [authLoading, setAuthLoading] = useState(true);
 
-    // Проверка сессии при загрузке
     useEffect(() => {
       let isMounted = true;
 
@@ -907,6 +1049,7 @@ export default function App() {
         let tripsQuery = supabase.from('trips').select('*').eq('user_id', user.id).order('date', { ascending: false });
         let fuelingsQuery = supabase.from('fuelings').select('*').eq('user_id', user.id).order('date', { ascending: false });
         let expensesQuery = supabase.from('expenses').select('*').eq('user_id', user.id).order('date', { ascending: false });
+        let categoriesQuery = supabase.from('expense_categories').select('*').eq('user_id', user.id);
         
         if(dateRange.from && dateRange.to) {
             tripsQuery = tripsQuery.gte('date', dateRange.from).lte('date', dateRange.to);
@@ -914,21 +1057,16 @@ export default function App() {
             expensesQuery = expensesQuery.gte('date', dateRange.from).lte('date', dateRange.to);
         }
 
-        const [tripsResult, fuelingsResult, expensesResult] = await Promise.all([tripsQuery, fuelingsQuery, expensesQuery]);
+        const [tripsResult, fuelingsResult, expensesResult, categoriesResult] = await Promise.all([tripsQuery, fuelingsQuery, expensesQuery, categoriesQuery]);
 
-        if (tripsResult.error) console.error('Ошибка получения поездок:', tripsResult.error);
-        else setTrips(tripsResult.data || []);
-
-        if (fuelingsResult.error) console.error('Ошибка получения заправок:', fuelingsResult.error);
-        else setFuelings(fuelingsResult.data || []);
-
-        if (expensesResult.error) console.error('Ошибка получения расходов:', expensesResult.error);
-        else setExpenses(expensesResult.data || []);
+        if (tripsResult.error) console.error('Ошибка получения поездок:', tripsResult.error); else setTrips(tripsResult.data || []);
+        if (fuelingsResult.error) console.error('Ошибка получения заправок:', fuelingsResult.error); else setFuelings(fuelingsResult.data || []);
+        if (expensesResult.error) console.error('Ошибка получения расходов:', expensesResult.error); else setExpenses(expensesResult.data || []);
+        if (categoriesResult.error) console.error('Ошибка получения категорий:', categoriesResult.error); else setExpenseCategories(categoriesResult.data || []);
         
         setLoading(false);
     }, [dateRange, user]);
 
-    // ИЗМЕНЕНО: Удалена подписка на realtime, так как мы обновляем данные вручную
     useEffect(() => {
         if (user) {
             fetchData();
@@ -936,7 +1074,6 @@ export default function App() {
     }, [user, fetchData]);
 
     // --- ОБРАБОТЧИКИ ДЕЙСТВИЙ ---
-    // ИСПРАВЛЕНО: Добавлен вызов fetchData() после каждой операции
     const handleDeleteTrip = async (trip) => {
         if (!supabase) return;
         await supabase.from('trips').delete().eq('id', trip.id);
@@ -1002,6 +1139,17 @@ export default function App() {
         fetchData();
         closeModal();
     };
+    
+    const handleAddCategory = async (name) => {
+        if (!supabase || !user) return;
+        await supabase.from('expense_categories').insert([{ name, user_id: user.id }]);
+        fetchData();
+    };
+    const handleDeleteCategory = async (category) => {
+        if (!supabase) return;
+        await supabase.from('expense_categories').delete().eq('id', category.id);
+        fetchData();
+    };
 
     const closeModal = () => setModal({ isOpen: false, type: null, data: null });
     const openModal = (type, data = null) => setModal({ isOpen: true, type, data });
@@ -1036,10 +1184,11 @@ export default function App() {
     const totalWorkTime = calculateTotalWorkTime(trips); 
     const totalDistance = calculateTotalDistance(trips);
     const totalExpenses = calculateTotalExpenses(expenses, fuelings);
+    const averageConsumption = calculateAverageConsumption(fuelings);
     
     const stats = [
         { icon: <TruckIcon className="h-6 w-6 text-blue-400"/>, value: totalDistance, label: 'Пробег за период', color: 'blue'},
-        { icon: <ClockIcon className="h-6 w-6 text-green-400"/>, value: totalDrivingTime, label: 'Время за рулем', color: 'green'},
+        { icon: <GasStationIcon className="h-6 w-6 text-yellow-400"/>, value: averageConsumption, label: 'Средний расход', color: 'yellow'},
         { icon: <ClockIcon className="h-6 w-6 text-purple-400"/>, value: totalWorkTime, label: 'Время работы', color: 'purple'},
         { icon: <CreditCardIcon className="h-6 w-6 text-red-400"/>, value: totalExpenses, label: 'Общие расходы', color: 'red'},
     ];
@@ -1064,9 +1213,9 @@ export default function App() {
             case 'Заправки':
                 return <FuelingsTable fuelings={fuelings} onEdit={(f) => openModal('EDIT_FUELING', f)} onDelete={(f) => openModal('DELETE_FUELING', f)} onAdd={() => openModal('ADD_FUELING')} />;
             case 'Расходы':
-                return <ExpensesTable expenses={expenses} onEdit={(e) => openModal('EDIT_EXPENSE', e)} onDelete={(e) => openModal('DELETE_EXPENSE', e)} onAdd={() => openModal('ADD_EXPENSE')} />;
+                return <ExpensesTable expenses={expenses} onEdit={(e) => openModal('EDIT_EXPENSE', e)} onDelete={(e) => openModal('DELETE_EXPENSE', e)} onAdd={() => openModal('ADD_EXPENSE')} onManageCategories={() => openModal('MANAGE_CATEGORIES')} />;
             case 'Отчеты':
-                 return <ReportsPage trips={trips} />;
+                 return <ReportsPage trips={trips} expenses={expenses} fuelings={fuelings} />;
             default:
                 return <PlaceholderPage title={activeMenu} />;
         }
@@ -1107,6 +1256,7 @@ export default function App() {
                             initialRange={dateRange}
                             onApply={(newRange) => {
                                 setDateRange(newRange);
+                                fetchData();
                                 closeModal();
                             }}
                             onCancel={closeModal}
@@ -1132,8 +1282,8 @@ export default function App() {
                         </div>
                     )}
 
-                    {modal.type === 'ADD_EXPENSE' && <ExpenseForm onSave={handleAddExpense} onCancel={closeModal} />}
-                    {modal.type === 'EDIT_EXPENSE' && <ExpenseForm expense={modal.data} onSave={handleUpdateExpense} onCancel={closeModal} />}
+                    {modal.type === 'ADD_EXPENSE' && <ExpenseForm onSave={handleAddExpense} onCancel={closeModal} categories={expenseCategories}/>}
+                    {modal.type === 'EDIT_EXPENSE' && <ExpenseForm expense={modal.data} onSave={handleUpdateExpense} onCancel={closeModal} categories={expenseCategories}/>}
                     {modal.type === 'DELETE_EXPENSE' && (
                          <div className="text-center">
                             <h2 className="text-2xl font-bold mb-4">Удалить расход?</h2>
@@ -1141,6 +1291,7 @@ export default function App() {
                             <div className="flex justify-center space-x-4"><button onClick={closeModal} className="px-6 py-2 rounded-lg bg-slate-600 hover:bg-slate-700">Отмена</button><button onClick={() => handleDeleteExpense(modal.data)} className="px-6 py-2 rounded-lg bg-red-600 hover:bg-red-700">Удалить</button></div>
                         </div>
                     )}
+                    {modal.type === 'MANAGE_CATEGORIES' && <CategoryManagerModal categories={expenseCategories} onAdd={handleAddCategory} onDelete={handleDeleteCategory} onCancel={closeModal} />}
                 </Modal>
             )}
         </div>
