@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import toast, { Toaster } from 'react-hot-toast';
 
 // --- НАСТРОЙКА SUPABASE ---
+// Клиент Supabase создается один раз при загрузке модуля, чтобы избежать множественных экземпляров.
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
 const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
 const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
@@ -52,6 +53,13 @@ const MapPinIcon = (props) => (
 const MenuIcon = (props) => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><line x1="4" x2="20" y1="12" y2="12" /><line x1="4" x2="20" y1="6" y2="6" /><line x1="4" x2="20" y1="18" y2="18" /></svg>
 );
+const GarageIcon = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M22 19v-2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v2"/><path d="M4 15V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9"/><path d="M12 15v-4"/><path d="M4 19h16"/></svg>
+);
+const CheckCircleIcon = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+);
+
 
 // --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
 const formatISODateToShort = (isoDate) => {
@@ -482,6 +490,68 @@ function ExpenseForm({ onSave, onCancel, expense = {}, categories = [] }) {
     );
 }
 
+// --- НОВЫЙ КОМПОНЕНТ: ФОРМА ДЛЯ АВТОМОБИЛЯ ---
+function VehicleForm({ onSave, onCancel, vehicle = {} }) {
+    const [formData, setFormData] = useState({
+        name: vehicle.name || '',
+        make: vehicle.make || '',
+        model: vehicle.model || '',
+        year: vehicle.year || '',
+        license_plate: vehicle.license_plate || '',
+    });
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const dataToSave = {
+            ...formData,
+            year: formData.year === '' ? null : Number(formData.year),
+        };
+        onSave({ ...vehicle, ...dataToSave });
+    };
+
+    return (
+        <form onSubmit={handleSubmit}>
+            <h2 className="text-2xl font-bold mb-6 text-white">{vehicle.id ? 'Редактировать ТС' : 'Новое ТС'}</h2>
+            <div className="space-y-4">
+                <div>
+                    <label htmlFor="name" className="block text-sm font-medium text-slate-400 mb-2">Название (например, "Мой рабочий тягач")</label>
+                    <input type="text" name="name" id="name" value={formData.name} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3" required />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label htmlFor="make" className="block text-sm font-medium text-slate-400 mb-2">Марка</label>
+                        <input type="text" name="make" id="make" value={formData.make} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3" placeholder="Volvo" />
+                    </div>
+                    <div>
+                        <label htmlFor="model" className="block text-sm font-medium text-slate-400 mb-2">Модель</label>
+                        <input type="text" name="model" id="model" value={formData.model} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3" placeholder="FH16" />
+                    </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label htmlFor="year" className="block text-sm font-medium text-slate-400 mb-2">Год выпуска</label>
+                        <input type="number" name="year" id="year" value={formData.year} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3" placeholder="2022" />
+                    </div>
+                    <div>
+                        <label htmlFor="license_plate" className="block text-sm font-medium text-slate-400 mb-2">Гос. номер</label>
+                        <input type="text" name="license_plate" id="license_plate" value={formData.license_plate} onChange={handleChange} className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3" placeholder="B-XY 1234" />
+                    </div>
+                </div>
+            </div>
+            <div className="flex justify-end space-x-4 mt-8">
+                <button type="button" onClick={onCancel} className="px-6 py-2 rounded-lg bg-slate-600 hover:bg-slate-700 transition-colors">Отмена</button>
+                <button type="submit" className="px-6 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 transition-colors">Сохранить</button>
+            </div>
+        </form>
+    );
+}
+
+
 function CategoryManagerModal({ categories, onAdd, onDelete, onCancel }) {
     const [newCategory, setNewCategory] = useState('');
 
@@ -573,7 +643,6 @@ function DateRangePickerModal({ initialRange, onApply, onCancel }) {
     );
 }
 
-
 // --- КОМПОНЕНТЫ ИНТЕРФЕЙСА ---
 const Modal = ({ children, onClose }) => (
     <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center p-4" onClick={onClose}>
@@ -592,6 +661,7 @@ const Sidebar = ({ activeItem, setActiveItem, isOpen, onClose }) => (
             <ul>
                 {[
                     { name: 'Главная', icon: HomeIcon },
+                    { name: 'Мой гараж', icon: GarageIcon },
                     { name: 'Поездки', icon: TruckIcon },
                     { name: 'Рабочее время', icon: ClockIcon },
                     { name: 'Заправки', icon: GasStationIcon },
@@ -635,7 +705,35 @@ const ProfileMenu = ({ user, onLogout }) => (
   </div>
 );
 
-const Header = ({activePage, dateRange, onDateFilterClick, onMenuToggle, user, onLogout}) => {
+// --- НОВЫЙ КОМПОНЕНТ: ВЫБОР АВТОМОБИЛЯ ---
+const VehicleSelector = ({ vehicles, selectedVehicle, onSelectVehicle }) => {
+    if (!selectedVehicle) return null;
+
+    return (
+        <div className="relative group">
+            <div className="flex items-center space-x-2 cursor-pointer bg-[#1e293b] px-3 py-1 lg:px-4 lg:py-2 rounded-lg hover:bg-slate-700 transition-colors">
+                <TruckIcon className="h-5 w-5 text-slate-400" />
+                <span className="font-semibold">{selectedVehicle.name}</span>
+                <ChevronDownIcon className="h-5 w-5 text-slate-400" />
+            </div>
+            <div className="absolute left-0 top-full mt-2 w-64 bg-[#1e293b] rounded-lg shadow-lg py-2 z-50 hidden group-hover:block">
+                {vehicles.map(vehicle => (
+                    <button
+                        key={vehicle.id}
+                        onClick={() => onSelectVehicle(vehicle)}
+                        className="w-full text-left px-4 py-3 flex items-center justify-between text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
+                    >
+                        <span>{vehicle.name}</span>
+                        {selectedVehicle.id === vehicle.id && <CheckCircleIcon className="h-5 w-5 text-blue-400" />}
+                    </button>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+
+const Header = ({activePage, dateRange, onDateFilterClick, onMenuToggle, user, onLogout, vehicles, selectedVehicle, onSelectVehicle}) => {
     const formatDate = (date) => new Date(date).toLocaleDateString('ru-RU');
     
     return (
@@ -647,6 +745,7 @@ const Header = ({activePage, dateRange, onDateFilterClick, onMenuToggle, user, o
                 <h1 className="text-xl lg:text-2xl font-bold text-white">{activePage === "Главная" ? "Обзор деятельности" : activePage}</h1>
             </div>
             <div className="flex items-center space-x-3 lg:space-x-6">
+                <VehicleSelector vehicles={vehicles} selectedVehicle={selectedVehicle} onSelectVehicle={onSelectVehicle} />
                 <button onClick={onDateFilterClick} className="flex items-center space-x-2 text-white bg-[#1e293b] px-3 py-1 lg:px-4 lg:py-2 rounded-lg hover:bg-slate-700 transition-colors text-sm lg:text-base">
                     <CalendarIcon className="h-4 w-4 lg:h-5 lg:w-5 text-slate-400"/>
                     <span className="hidden sm:inline">
@@ -666,7 +765,6 @@ const StatCard = ({ icon, value, label, color }) => (
     <div className="bg-[#1e293b] p-6 rounded-2xl shadow-lg flex-1 transition-transform transform hover:-translate-y-1">
         <div className="flex justify-between items-start">
             <div className={`p-3 rounded-lg bg-${color}-500/20`}>{icon}</div>
-            <button className="text-slate-500 hover:text-white">...</button>
         </div>
         <div className="mt-4">
             <p className="text-3xl font-bold text-white">{value}</p>
@@ -828,6 +926,58 @@ const ExpensesTable = ({ expenses, onEdit, onDelete, onAdd, onManageCategories }
     </div>
   </div>
 );
+
+// --- НОВЫЙ КОМПОНЕНТ: СТРАНИЦА ГАРАЖА ---
+const GaragePage = ({ vehicles, onAdd, onEdit, onDelete, onSetDefault }) => {
+    return (
+        <div className="bg-[#1e293b] p-6 rounded-2xl mt-8 shadow-lg">
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-white">Мой гараж</h2>
+                <button onClick={onAdd} className="bg-blue-500 text-white font-semibold px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-blue-600 transition-all duration-200">
+                    <span>+</span>
+                    <span>Добавить ТС</span>
+                </button>
+            </div>
+            {vehicles.length === 0 ? (
+                <div className="text-center py-12 text-slate-500">
+                    <GarageIcon className="h-24 w-24 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-slate-300">Ваш гараж пуст</h3>
+                    <p className="mt-2">Добавьте ваше первое транспортное средство, чтобы начать.</p>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {vehicles.map(vehicle => (
+                        <div key={vehicle.id} className="bg-slate-800/50 rounded-xl p-5 flex flex-col justify-between">
+                            <div>
+                                <div className="flex justify-between items-start">
+                                    <h3 className="text-lg font-bold text-white">{vehicle.name}</h3>
+                                    {vehicle.is_default && (
+                                        <div className="flex items-center text-xs font-bold text-green-400 bg-green-500/10 px-2 py-1 rounded-full">
+                                            <CheckCircleIcon className="h-4 w-4 mr-1"/>
+                                            <span>Основной</span>
+                                        </div>
+                                    )}
+                                </div>
+                                <p className="text-slate-400">{vehicle.make} {vehicle.model} ({vehicle.year})</p>
+                                <p className="text-slate-300 font-mono mt-2">{vehicle.license_plate}</p>
+                            </div>
+                            <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-700/50">
+                                {!vehicle.is_default && (
+                                    <button onClick={() => onSetDefault(vehicle)} className="text-sm text-blue-400 hover:text-blue-300">Сделать основным</button>
+                                )}
+                                <div className="flex items-center space-x-2 ml-auto">
+                                    <button onClick={() => onEdit(vehicle)} className="p-2 rounded-md text-slate-400 hover:bg-slate-700 hover:text-green-400 transition-colors"><EditIcon width="18" height="18"/></button>
+                                    <button onClick={() => onDelete(vehicle)} className="p-2 rounded-md text-slate-400 hover:bg-slate-700 hover:text-red-400 transition-colors"><DeleteIcon width="18" height="18"/></button>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
+
 
 const PlaceholderPage = ({ title }) => (
     <div className="flex flex-col items-center justify-center h-full mt-20 text-slate-500">
@@ -1054,36 +1204,37 @@ const DashboardSkeleton = () => (
 
 // --- ГЛАВНЫЙ КОМПОНЕНТ ПРИЛОЖЕНИЯ ---
 export default function App() {
+    // Состояния для данных
+    const [vehicles, setVehicles] = useState([]);
+    const [selectedVehicle, setSelectedVehicle] = useState(null);
     const [trips, setTrips] = useState([]);
     const [fuelings, setFuelings] = useState([]);
     const [expenses, setExpenses] = useState([]);
     const [expenseCategories, setExpenseCategories] = useState([]);
+    
+    // Состояния для UI
     const [loading, setLoading] = useState(true);
     const [modal, setModal] = useState({ isOpen: false, type: null, data: null });
     const [activeMenu, setActiveMenu] = useState('Главная');
     const [dateRange, setDateRange] = useState({ from: null, to: null });
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    
+    // Состояния для аутентификации
     const [user, setUser] = useState(null);
     const [authLoading, setAuthLoading] = useState(true);
 
+    // Эффект для проверки сессии и подписки на изменения состояния аутентификации
     useEffect(() => {
-      let isMounted = true;
+      if (!supabase) return;
 
-      if (!supabase) {
-        console.error("Supabase client is not initialized");
-        if (isMounted) {
-          setAuthLoading(false);
-        }
-        return;
-      }
+      let isMounted = true;
+      setAuthLoading(true);
 
       const checkSession = async () => {
         const { data: { session }, error } = await supabase.auth.getSession();
         if (!isMounted) return;
         
-        if (error) {
-          console.error('Ошибка проверки сессии:', error);
-        }
+        if (error) console.error('Ошибка проверки сессии:', error);
         setUser(session?.user || null);
         setAuthLoading(false);
       };
@@ -1094,6 +1245,10 @@ export default function App() {
         (event, session) => {
           if (isMounted) {
             setUser(session?.user || null);
+            if (event === "SIGNED_OUT") {
+                setVehicles([]);
+                setSelectedVehicle(null);
+            }
           }
         }
       );
@@ -1104,51 +1259,170 @@ export default function App() {
       };
     }, []);
 
-    const fetchData = useCallback(async () => {
-        if (!supabase || !user) return;
-        setLoading(true);
-        
-        let tripsQuery = supabase.from('trips').select('*').eq('user_id', user.id).order('date', { ascending: false });
-        let fuelingsQuery = supabase.from('fuelings').select('*').eq('user_id', user.id).order('date', { ascending: false });
-        let expensesQuery = supabase.from('expenses').select('*').eq('user_id', user.id).order('date', { ascending: false });
-        let categoriesQuery = supabase.from('expense_categories').select('*').eq('user_id', user.id);
-        
-        if(dateRange.from && dateRange.to) {
-            tripsQuery = tripsQuery.gte('date', dateRange.from).lte('date', dateRange.to);
-            fuelingsQuery = fuelingsQuery.gte('date', dateRange.from).lte('date', dateRange.to);
-            expensesQuery = expensesQuery.gte('date', dateRange.from).lte('date', dateRange.to);
-        }
-
-        const [tripsResult, fuelingsResult, expensesResult, categoriesResult] = await Promise.all([tripsQuery, fuelingsQuery, expensesQuery, categoriesQuery]);
-
-        if (tripsResult.error) console.error('Ошибка получения поездок:', tripsResult.error); else setTrips(tripsResult.data || []);
-        if (fuelingsResult.error) console.error('Ошибка получения заправок:', fuelingsResult.error); else setFuelings(fuelingsResult.data || []);
-        if (expensesResult.error) console.error('Ошибка получения расходов:', expensesResult.error); else setExpenses(expensesResult.data || []);
-        if (categoriesResult.error) console.error('Ошибка получения категорий:', categoriesResult.error); else setExpenseCategories(categoriesResult.data || []);
-        
-        setLoading(false);
-    }, [dateRange, user]);
-
+    // Эффект для загрузки списка ТС и установки выбранного по умолчанию
     useEffect(() => {
-        if (user) {
-            fetchData();
-        }
-    }, [user, fetchData]);
+        if (!supabase || !user) return;
 
-    // --- ОБРАБОТЧИКИ ДЕЙСТВИЙ ---
+        const fetchVehicles = async () => {
+            setLoading(true);
+            const { data, error } = await supabase
+                .from('vehicles')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('name', { ascending: true });
+
+            if (error) {
+                toast.error('Не удалось загрузить автомобили.');
+                console.error(error);
+            } else {
+                const vehiclesData = data || [];
+                setVehicles(vehiclesData);
+                
+                // Логика выбора активного ТС
+                const currentSelectedIsValid = selectedVehicle && vehiclesData.some(v => v.id === selectedVehicle.id);
+                if (!currentSelectedIsValid) {
+                     const defaultVehicle = vehiclesData.find(v => v.is_default);
+                     const firstVehicle = vehiclesData.length > 0 ? vehiclesData[0] : null;
+                     setSelectedVehicle(defaultVehicle || firstVehicle);
+                }
+            }
+            setLoading(false);
+        };
+
+        fetchVehicles();
+    }, [supabase, user, selectedVehicle]); // Зависит только от пользователя
+
+    // Эффект для загрузки данных, связанных с выбранным ТС
+    useEffect(() => {
+        if (!supabase || !user || !selectedVehicle) {
+           setTrips([]);
+           setFuelings([]);
+           setExpenses([]);
+           return;
+        };
+
+        const fetchDataForVehicle = async () => {
+            setLoading(true);
+            let tripsQuery = supabase.from('trips').select('*').eq('vehicle_id', selectedVehicle.id).order('date', { ascending: false });
+            let fuelingsQuery = supabase.from('fuelings').select('*').eq('vehicle_id', selectedVehicle.id).order('date', { ascending: false });
+            let expensesQuery = supabase.from('expenses').select('*').eq('vehicle_id', selectedVehicle.id).order('date', { ascending: false });
+            let categoriesQuery = supabase.from('expense_categories').select('*').eq('user_id', user.id);
+
+            if(dateRange.from && dateRange.to) {
+                tripsQuery = tripsQuery.gte('date', dateRange.from).lte('date', dateRange.to);
+                fuelingsQuery = fuelingsQuery.gte('date', dateRange.from).lte('date', dateRange.to);
+                expensesQuery = expensesQuery.gte('date', dateRange.from).lte('date', dateRange.to);
+            }
+
+            const [tripsResult, fuelingsResult, expensesResult, categoriesResult] = await Promise.all([tripsQuery, fuelingsQuery, expensesQuery, categoriesQuery]);
+
+            if (tripsResult.error) console.error('Ошибка получения поездок:', tripsResult.error); else setTrips(tripsResult.data || []);
+            if (fuelingsResult.error) console.error('Ошибка получения заправок:', fuelingsResult.error); else setFuelings(fuelingsResult.data || []);
+            if (expensesResult.error) console.error('Ошибка получения расходов:', expensesResult.error); else setExpenses(expensesResult.data || []);
+            if (categoriesResult.error) console.error('Ошибка получения категорий:', categoriesResult.error); else setExpenseCategories(categoriesResult.data || []);
+            
+            setLoading(false);
+        };
+
+        fetchDataForVehicle();
+    }, [supabase, user, selectedVehicle, dateRange]); // Зависит от выбранного ТС и диапазона дат
+
+
+    const refreshVehicles = async (selectLast = false) => {
+         if (!supabase || !user) return;
+         const { data, error } = await supabase
+            .from('vehicles')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: true });
+        
+        if (error) {
+            toast.error("Не удалось обновить список ТС");
+        } else {
+            const vehiclesData = data || [];
+            setVehicles(vehiclesData);
+            if (selectLast && vehiclesData.length > 0) {
+                setSelectedVehicle(vehiclesData[vehiclesData.length - 1]);
+            }
+        }
+    }
+
+
+    // --- ОБРАБОТЧИКИ ДЕЙСТВИЙ С ТС ---
+    const handleAddVehicle = async (newVehicle) => {
+        if (!supabase || !user) return;
+        const isFirstVehicle = vehicles.length === 0;
+        const { error } = await supabase.from('vehicles').insert([{ ...newVehicle, user_id: user.id, is_default: isFirstVehicle }]);
+        
+        if (error) {
+            toast.error(error.message);
+        } else {
+            toast.success('ТС успешно добавлено!');
+            await refreshVehicles(true); // Обновляем список и выбираем только что добавленное ТС
+        }
+        closeModal();
+    };
+
+    const handleUpdateVehicle = async (updatedVehicle) => {
+        if (!supabase) return;
+        const { id, ...vehicleData } = updatedVehicle;
+        await supabase.from('vehicles').update(vehicleData).eq('id', id);
+        toast.success('ТС успешно обновлено!');
+        await refreshVehicles();
+        closeModal();
+    };
+    
+    const handleDeleteVehicle = async (vehicle) => {
+        if (!supabase) return;
+        await supabase.from('vehicles').delete().eq('id', vehicle.id);
+        toast.success('ТС удалено.');
+        
+        const remainingVehicles = vehicles.filter(v => v.id !== vehicle.id);
+        setVehicles(remainingVehicles);
+
+        if (selectedVehicle && selectedVehicle.id === vehicle.id) {
+             const defaultVehicle = remainingVehicles.find(v => v.is_default);
+             const firstVehicle = remainingVehicles.length > 0 ? remainingVehicles[0] : null;
+             setSelectedVehicle(defaultVehicle || firstVehicle);
+        }
+        closeModal();
+    };
+
+    const handleSetDefaultVehicle = async (vehicle) => {
+        if (!supabase || !user) return;
+        await supabase.from('vehicles').update({ is_default: false }).eq('user_id', user.id);
+        await supabase.from('vehicles').update({ is_default: true }).eq('id', vehicle.id);
+        toast.success(`"${vehicle.name}" установлено как ТС по умолчанию.`);
+        await refreshVehicles();
+    };
+
+    // --- ОБРАБОТЧИКИ ДЕЙСТВИЙ С ДАННЫМИ ---
+    const fetchDataForCurrentVehicle = useCallback(async () => {
+        if (supabase && user && selectedVehicle) {
+             let tripsQuery = supabase.from('trips').select('*').eq('vehicle_id', selectedVehicle.id).order('date', { ascending: false });
+             let fuelingsQuery = supabase.from('fuelings').select('*').eq('vehicle_id', selectedVehicle.id).order('date', { ascending: false });
+             let expensesQuery = supabase.from('expenses').select('*').eq('vehicle_id', selectedVehicle.id).order('date', { ascending: false });
+             const [tripsResult, fuelingsResult, expensesResult] = await Promise.all([tripsQuery, fuelingsQuery, expensesQuery]);
+             if (tripsResult.error) console.error('Ошибка получения поездок:', tripsResult.error); else setTrips(tripsResult.data || []);
+             if (fuelingsResult.error) console.error('Ошибка получения заправок:', fuelingsResult.error); else setFuelings(fuelingsResult.data || []);
+             if (expensesResult.error) console.error('Ошибка получения расходов:', expensesResult.error); else setExpenses(expensesResult.data || []);
+        }
+    }, [supabase, user, selectedVehicle]);
+
+
     const handleDeleteTrip = async (trip) => {
         if (!supabase) return;
         await supabase.from('trips').delete().eq('id', trip.id);
         toast.success('Поездка удалена.');
-        fetchData();
+        fetchDataForCurrentVehicle();
         closeModal();
     };
     
     const handleAddTrip = async (newTrip) => {
-        if (!supabase || !user) return;
-        await supabase.from('trips').insert([{ ...newTrip, user_id: user.id }]);
+        if (!supabase || !user || !selectedVehicle) return;
+        await supabase.from('trips').insert([{ ...newTrip, user_id: user.id, vehicle_id: selectedVehicle.id }]);
         toast.success('Поездка успешно добавлена!');
-        fetchData();
+        fetchDataForCurrentVehicle();
         closeModal();
     };
 
@@ -1157,7 +1431,7 @@ export default function App() {
         const { id, ...tripData } = updatedTrip;
         await supabase.from('trips').update(tripData).eq('id', id);
         toast.success('Поездка успешно обновлена!');
-        fetchData();
+        fetchDataForCurrentVehicle();
         closeModal();
     };
 
@@ -1165,15 +1439,15 @@ export default function App() {
         if (!supabase) return;
         await supabase.from('fuelings').delete().eq('id', fueling.id);
         toast.success('Заправка удалена.');
-        fetchData();
+        fetchDataForCurrentVehicle();
         closeModal();
     };
     
     const handleAddFueling = async (newFueling) => {
-        if (!supabase || !user) return;
-        await supabase.from('fuelings').insert([{ ...newFueling, user_id: user.id }]);
+        if (!supabase || !user || !selectedVehicle) return;
+        await supabase.from('fuelings').insert([{ ...newFueling, user_id: user.id, vehicle_id: selectedVehicle.id }]);
         toast.success('Заправка успешно добавлена!');
-        fetchData();
+        fetchDataForCurrentVehicle();
         closeModal();
     };
 
@@ -1182,7 +1456,7 @@ export default function App() {
         const { id, ...fuelingData } = updatedFueling;
         await supabase.from('fuelings').update(fuelingData).eq('id', id);
         toast.success('Заправка успешно обновлена!');
-        fetchData();
+        fetchDataForCurrentVehicle();
         closeModal();
     };
 
@@ -1190,15 +1464,15 @@ export default function App() {
         if (!supabase) return;
         await supabase.from('expenses').delete().eq('id', expense.id);
         toast.success('Расход удален.');
-        fetchData();
+        fetchDataForCurrentVehicle();
         closeModal();
     };
     
     const handleAddExpense = async (newExpense) => {
-        if (!supabase || !user) return;
-        await supabase.from('expenses').insert([{ ...newExpense, user_id: user.id }]);
+        if (!supabase || !user || !selectedVehicle) return;
+        await supabase.from('expenses').insert([{ ...newExpense, user_id: user.id, vehicle_id: selectedVehicle.id }]);
         toast.success('Расход успешно добавлен!');
-        fetchData();
+        fetchDataForCurrentVehicle();
         closeModal();
     };
 
@@ -1207,7 +1481,7 @@ export default function App() {
         const { id, ...expenseData } = updatedExpense;
         await supabase.from('expenses').update(expenseData).eq('id', id);
         toast.success('Расход успешно обновлен!');
-        fetchData();
+        fetchDataForCurrentVehicle();
         closeModal();
     };
     
@@ -1215,13 +1489,15 @@ export default function App() {
         if (!supabase || !user) return;
         await supabase.from('expense_categories').insert([{ name, user_id: user.id }]);
         toast.success('Категория добавлена!');
-        fetchData();
+        const { data, error } = await supabase.from('expense_categories').select('*').eq('user_id', user.id);
+        if(!error) setExpenseCategories(data || []);
     };
     const handleDeleteCategory = async (category) => {
         if (!supabase) return;
         await supabase.from('expense_categories').delete().eq('id', category.id);
         toast.success('Категория удалена.');
-        fetchData();
+        const { data, error } = await supabase.from('expense_categories').select('*').eq('user_id', user.id);
+        if(!error) setExpenseCategories(data || []);
     };
 
     const closeModal = () => setModal({ isOpen: false, type: null, data: null });
@@ -1234,16 +1510,12 @@ export default function App() {
         setUser(null);
     };
 
-    if (!supabase) {
-        return <div className="bg-[#0f172a] min-h-screen flex items-center justify-center text-white text-xl">Настройка подключения к базе данных...</div>
-    }
-
-    if (authLoading) {
+    if (authLoading || !supabase) {
         return (
             <div className="bg-[#0f172a] min-h-screen flex items-center justify-center">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
-                    <p className="mt-4 text-slate-400">Проверка сессии...</p>
+                    <p className="mt-4 text-slate-400">Загрузка...</p>
                 </div>
             </div>
         );
@@ -1268,6 +1540,22 @@ export default function App() {
 
     const renderContent = () => {
         if (loading) return <DashboardSkeleton />;
+        if (vehicles.length > 0 && !selectedVehicle) {
+             return <div className="text-center mt-20"><h2 className="text-2xl">Выберите ТС для начала работы</h2></div>
+        }
+        if (vehicles.length === 0 && activeMenu !== 'Мой гараж') {
+            return (
+                <div className="text-center py-12 text-slate-500 mt-10">
+                    <GarageIcon className="h-24 w-24 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-slate-300">Сначала добавьте автомобиль</h3>
+                    <p className="mt-2">Перейдите в раздел "Мой гараж", чтобы добавить ваше первое ТС.</p>
+                     <button onClick={() => setActiveMenu('Мой гараж')} className="mt-6 bg-blue-500 text-white font-semibold px-6 py-3 rounded-lg hover:bg-blue-600 transition-all duration-200">
+                        Перейти в гараж
+                    </button>
+                </div>
+            )
+        }
+
 
         switch (activeMenu) {
             case 'Главная':
@@ -1279,6 +1567,8 @@ export default function App() {
                         <TripsTable trips={trips.slice(0, 5)} onEdit={(trip) => openModal('EDIT_TRIP', trip)} onDelete={(trip) => openModal('DELETE_TRIP', trip)} onAdd={() => openModal('ADD_TRIP')} />
                     </>
                 );
+            case 'Мой гараж':
+                return <GaragePage vehicles={vehicles} onAdd={() => openModal('ADD_VEHICLE')} onEdit={(v) => openModal('EDIT_VEHICLE', v)} onDelete={(v) => openModal('DELETE_VEHICLE', v)} onSetDefault={handleSetDefaultVehicle} />;
             case 'Поездки':
                 return <TripsTable trips={trips} onEdit={(trip) => openModal('EDIT_TRIP', trip)} onDelete={(trip) => openModal('DELETE_TRIP', trip)} onAdd={() => openModal('ADD_TRIP')} />;
             case 'Рабочее время':
@@ -1319,6 +1609,9 @@ export default function App() {
                     onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
                     user={user}
                     onLogout={handleLogout}
+                    vehicles={vehicles}
+                    selectedVehicle={selectedVehicle}
+                    onSelectVehicle={setSelectedVehicle}
                 />
                 <main className="p-4 lg:p-8">
                     {renderContent()}
@@ -1327,12 +1620,24 @@ export default function App() {
 
             {modal.isOpen && (
                 <Modal onClose={closeModal}>
+                    {/* Модальные окна для ТС */}
+                    {modal.type === 'ADD_VEHICLE' && <VehicleForm onSave={handleAddVehicle} onCancel={closeModal} />}
+                    {modal.type === 'EDIT_VEHICLE' && <VehicleForm vehicle={modal.data} onSave={handleUpdateVehicle} onCancel={closeModal} />}
+                    {modal.type === 'DELETE_VEHICLE' && (
+                        <div className="text-center">
+                            <h2 className="text-2xl font-bold mb-4">Удалить ТС?</h2>
+                            <p className="text-slate-400 mb-2">Вы уверены, что хотите удалить <span className="font-bold text-white">{modal.data.name}</span>?</p>
+                            <p className="text-slate-500 mb-8 text-sm">Все связанные поездки, заправки и расходы также будут удалены. Это действие необратимо.</p>
+                            <div className="flex justify-center space-x-4"><button onClick={closeModal} className="px-6 py-2 rounded-lg bg-slate-600 hover:bg-slate-700">Отмена</button><button onClick={() => handleDeleteVehicle(modal.data)} className="px-6 py-2 rounded-lg bg-red-600 hover:bg-red-700">Удалить</button></div>
+                        </div>
+                    )}
+                    
+                    {/* Остальные модальные окна */}
                     {modal.type === 'DATE_PICKER' && (
                         <DateRangePickerModal 
                             initialRange={dateRange}
                             onApply={(newRange) => {
                                 setDateRange(newRange);
-                                fetchData();
                                 closeModal();
                             }}
                             onCancel={closeModal}
